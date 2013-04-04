@@ -9,6 +9,9 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Random;
 
 import javax.swing.JButton;
@@ -92,13 +95,17 @@ import weka.classifiers.trees.SimpleCart;
 import weka.core.Instances;
 
 
-public class AllClassifiers extends JFrame {
+public class AllClassifiers extends JFrame implements ThreadCompleteListener {
 	private JButton m_OpenBtn = new JButton("Open file...");
 	private JFileChooser m_FileChooser = new JFileChooser();
 	private JButton m_RunBtn = new JButton("Run");
 	private JTextArea m_Txt = new JTextArea();
 	private JScrollPane m_Pane = new JScrollPane(m_Txt);
 	private Instances trainingData;
+	private NotifyingThread one, two, three;
+	StringBuilder builder = new StringBuilder();
+	HashMap<Classifier, Double> classifyingResult = new HashMap<Classifier, Double>();
+	
 	
 	/**
 	 * 
@@ -160,32 +167,38 @@ public class AllClassifiers extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent event) {
 				m_Txt.setText("");
-				final StringBuilder builder = new StringBuilder();
-				new Thread() {
-					public void run() {
+				one = new NotifyingThread() {
+					public void doRun() {
 						for (int i = 0; i < 22; i++) {
-							if (i == 5 || i == 6)
+							if (i == 5)
 								continue;
-							setText(threadRun(i, builder).toString());
+							threadRun(i, builder, classifyingResult);
+							setText(builder.toString());
 						}
 					}
-				}.start();
-				
-				new Thread() {
-					public void run() {
+				};
+				two = new NotifyingThread() {
+					public void doRun() {
 						for (int i = 22; i < 43; i++) {
-							setText(threadRun(i, builder).toString());
+							threadRun(i, builder, classifyingResult);
+							setText(builder.toString());
 						}
 					}
-				}.start();
-				
-				new Thread() {
-					public void run() {
+				};
+				three = new NotifyingThread() {
+					public void doRun() {
 						for (int i = 43; i < 64; i++) {
-							setText(threadRun(i, builder).toString());
+							threadRun(i, builder, classifyingResult);
+							setText(builder.toString());
 						}
 					}
-				}.start();
+				};
+				one.addListener(AllClassifiers.this);
+				two.addListener(AllClassifiers.this);
+				three.addListener(AllClassifiers.this);
+				one.start();
+				two.start();
+				three.start();
 			}
 		});
 		
@@ -204,16 +217,17 @@ public class AllClassifiers extends JFrame {
 		setVisible(true);
 	}
 	
-	private void setText(String text) {
+	private synchronized void setText(String text) {
 		m_Txt.setText(text);
 	}
 	
-	private synchronized StringBuilder threadRun(int classifierCode, StringBuilder builder) {
-		builder.append(classify(classifierCode) + "\n");
-		return builder;
+	private synchronized void threadRun(int classifierCode, StringBuilder builder, HashMap<Classifier, Double> classifyingResult) {
+		Object[] result = classify(classifierCode);
+		builder.append( ((Classifier)result[0]).getClass().getCanonicalName() + ":\t\t\t" + result[1] + "\n" );
+		classifyingResult.put((Classifier)result[0], (Double)result[1]);
 	}
 	
-	private String classify(int classifierCode) {
+	private Object[] classify(int classifierCode) {
 		Classifier classifier;
 		
 		switch (classifierCode) {
@@ -421,18 +435,23 @@ public class AllClassifiers extends JFrame {
 			break;
 		}
 		
-		String result = classifier.getClass().getName() + ":\t\t\t\t";
+		//String result = classifier.getClass().getName() + ":\t\t\t\t";
+		Double pctCorrect = Double.valueOf(0);
 		try {
 			classifier.buildClassifier(trainingData);
 			
 			Evaluation eval = new Evaluation(trainingData);
 			eval.crossValidateModel(classifier, trainingData, 10, new Random(1));
-			result += String.valueOf(eval.pctCorrect());
+			//result += String.valueOf(eval.pctCorrect());
+			pctCorrect = eval.pctCorrect();
 		} catch (Exception e) {
-			result += "error";
+			//result += "error";
 			e.printStackTrace();
 		}
 		
+		Object[] result = new Object[2];
+		result[0] = classifier;
+		result[1] = pctCorrect;
 		return result;
 	}
 
@@ -441,6 +460,21 @@ public class AllClassifiers extends JFrame {
 	 */
 	public static void main(String[] args) {
 		new AllClassifiers();
+	}
+
+	@Override
+	public void notifyOfThreadComplete(Thread thread) {
+		if (!one.isAlive() && !two.isAlive() && !three.isAlive()) {
+			Collection<Double> values = classifyingResult.values();
+			Iterator<Double> iterator = values.iterator();
+			Double maxPercent = Double.valueOf(0);
+			while (iterator.hasNext()) {
+				Double temp = (Double) iterator.next();
+				if (temp > maxPercent)
+					maxPercent = temp;
+			}
+			
+		}
 	}
 
 }
