@@ -9,10 +9,9 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
+import java.util.Map.Entry;
 import java.util.Random;
+import java.util.TreeMap;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -104,19 +103,17 @@ public class AllClassifiers extends JFrame implements ThreadCompleteListener {
 	private Instances trainingData;
 	private NotifyingThread one, two, three;
 	StringBuilder builder = new StringBuilder();
-	HashMap<Classifier, Double> classifyingResult = new HashMap<Classifier, Double>();
+	TreeMap<Double, Classifier> classifyingResult = new TreeMap<Double, Classifier>();
+	TreeMap<Double, Classifier> costResult = new TreeMap<Double, Classifier>();
 	
-	
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 
 	public AllClassifiers() {
 		m_OpenBtn.setToolTipText("Open a set of instances from a file");
 		m_RunBtn.setToolTipText("Run all classifiers");
 		m_RunBtn.setEnabled(false);
-		m_Txt.setEditable(false);
+		//m_Txt.setEditable(false);
+		m_Pane.setAutoscrolls(true);
 		m_FileChooser.setCurrentDirectory(new File(System.getProperty("user.home") + "\\Desktop"));
 		m_FileChooser.setFileFilter(new FileNameExtensionFilter("Arff data files", "arff"));
 		
@@ -139,7 +136,6 @@ public class AllClassifiers extends JFrame implements ThreadCompleteListener {
 					    for (int i = 0; i < selectedAtt.length; i++) {
 					    	indices.add(Integer.valueOf(selectedAtt[i]));
 					    }
-					    //m_Txt.setText(String.valueOf(indices.size()));
 					    m_Txt.setText(indices.toString());
 
 					    for (int i = trainingData.numAttributes() - 2; i >= 0 ; i--) {
@@ -166,13 +162,15 @@ public class AllClassifiers extends JFrame implements ThreadCompleteListener {
 		m_RunBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				m_Txt.setText("");
+				setText("");
+				m_OpenBtn.setEnabled(false);
+				m_RunBtn.setEnabled(false);
 				one = new NotifyingThread() {
 					public void doRun() {
 						for (int i = 0; i < 22; i++) {
 							if (i == 5)
 								continue;
-							threadRun(i, builder, classifyingResult);
+							threadRun(i, builder, classifyingResult, costResult);
 							setText(builder.toString());
 						}
 					}
@@ -180,7 +178,7 @@ public class AllClassifiers extends JFrame implements ThreadCompleteListener {
 				two = new NotifyingThread() {
 					public void doRun() {
 						for (int i = 22; i < 43; i++) {
-							threadRun(i, builder, classifyingResult);
+							threadRun(i, builder, classifyingResult, costResult);
 							setText(builder.toString());
 						}
 					}
@@ -188,7 +186,7 @@ public class AllClassifiers extends JFrame implements ThreadCompleteListener {
 				three = new NotifyingThread() {
 					public void doRun() {
 						for (int i = 43; i < 64; i++) {
-							threadRun(i, builder, classifyingResult);
+							threadRun(i, builder, classifyingResult, costResult);
 							setText(builder.toString());
 						}
 					}
@@ -221,10 +219,18 @@ public class AllClassifiers extends JFrame implements ThreadCompleteListener {
 		m_Txt.setText(text);
 	}
 	
-	private synchronized void threadRun(int classifierCode, StringBuilder builder, HashMap<Classifier, Double> classifyingResult) {
+	private void enableButtons() {
+		m_OpenBtn.setEnabled(true);
+		m_RunBtn.setEnabled(true);
+	}
+	
+	private void threadRun(int classifierCode, StringBuilder builder, TreeMap<Double, Classifier> classifyingResult, TreeMap<Double, Classifier> costResult) {
 		Object[] result = classify(classifierCode);
-		builder.append( ((Classifier)result[0]).getClass().getCanonicalName() + ":\t\t\t" + result[1] + "\n" );
-		classifyingResult.put((Classifier)result[0], (Double)result[1]);
+		synchronized (this) {
+			builder.append( ((Classifier)result[0]).getClass().getSimpleName() + ":\t\t" + result[1] + "\t\t" + result[2] + "\n" );
+			classifyingResult.put((Double)result[1], (Classifier)result[0]);
+			costResult.put((Double)result[2], (Classifier)result[0]);
+		}
 	}
 	
 	private Object[] classify(int classifierCode) {
@@ -437,6 +443,7 @@ public class AllClassifiers extends JFrame implements ThreadCompleteListener {
 		
 		//String result = classifier.getClass().getName() + ":\t\t\t\t";
 		Double pctCorrect = Double.valueOf(0);
+		Double cost = Double.valueOf(0);
 		try {
 			classifier.buildClassifier(trainingData);
 			
@@ -444,14 +451,16 @@ public class AllClassifiers extends JFrame implements ThreadCompleteListener {
 			eval.crossValidateModel(classifier, trainingData, 10, new Random(1));
 			//result += String.valueOf(eval.pctCorrect());
 			pctCorrect = eval.pctCorrect();
+			cost = eval.totalCost();
 		} catch (Exception e) {
 			//result += "error";
 			e.printStackTrace();
 		}
 		
-		Object[] result = new Object[2];
+		Object[] result = new Object[3];
 		result[0] = classifier;
 		result[1] = pctCorrect;
+		result[2] = cost;
 		return result;
 	}
 
@@ -463,17 +472,17 @@ public class AllClassifiers extends JFrame implements ThreadCompleteListener {
 	}
 
 	@Override
-	public void notifyOfThreadComplete(Thread thread) {
-		if (!one.isAlive() && !two.isAlive() && !three.isAlive()) {
-			Collection<Double> values = classifyingResult.values();
-			Iterator<Double> iterator = values.iterator();
-			Double maxPercent = Double.valueOf(0);
-			while (iterator.hasNext()) {
-				Double temp = (Double) iterator.next();
-				if (temp > maxPercent)
-					maxPercent = temp;
-			}
-			
+	public synchronized void notifyOfThreadComplete(Thread thread) {
+		if ( (thread.getName().equals(one.getName()) && !two.isAlive() && !three.isAlive()) ||
+				(thread.getName().equals(two.getName()) && !one.isAlive() && !three.isAlive()) ||
+				(thread.getName().equals(three.getName()) && !one.isAlive() && !two.isAlive())
+			) {
+			Entry<Double, Classifier> lastEntry = classifyingResult.lastEntry();
+			Entry<Double, Classifier> firstEntry = costResult.firstEntry();
+			builder.append("---------------\n" + lastEntry.getValue().getClass().getSimpleName() + "\t" + lastEntry.getKey() + "\n");
+			builder.append(firstEntry.getValue().getClass().getSimpleName() + "\t" + firstEntry.getKey());
+			setText(builder.toString());
+			//enableButtons();
 		}
 	}
 
