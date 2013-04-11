@@ -31,7 +31,6 @@ import weka.classifiers.bayes.DMNBtext;
 import weka.classifiers.bayes.NaiveBayes;
 import weka.classifiers.bayes.NaiveBayesSimple;
 import weka.classifiers.bayes.NaiveBayesUpdateable;
-import weka.classifiers.functions.LibLINEAR;
 import weka.classifiers.functions.LibSVM;
 import weka.classifiers.functions.Logistic;
 import weka.classifiers.functions.MultilayerPerceptron;
@@ -104,7 +103,6 @@ public class AllClassifiers extends JFrame implements ThreadCompleteListener {
 	private NotifyingThread one, two, three;
 	StringBuilder builder = new StringBuilder();
 	TreeMap<Double, Classifier> classifyingResult = new TreeMap<Double, Classifier>();
-	TreeMap<Double, Classifier> costResult = new TreeMap<Double, Classifier>();
 	
 	private static final long serialVersionUID = 1L;
 
@@ -167,26 +165,24 @@ public class AllClassifiers extends JFrame implements ThreadCompleteListener {
 				m_RunBtn.setEnabled(false);
 				one = new NotifyingThread() {
 					public void doRun() {
-						for (int i = 0; i < 22; i++) {
-							if (i == 5)
-								continue;
-							threadRun(i, builder, classifyingResult, costResult);
+						for (int i = 0; i < 21; i++) {
+							threadRun(i, builder, classifyingResult);
 							setText(builder.toString());
 						}
 					}
 				};
 				two = new NotifyingThread() {
 					public void doRun() {
-						for (int i = 22; i < 43; i++) {
-							threadRun(i, builder, classifyingResult, costResult);
+						for (int i = 21; i < 42; i++) {
+							threadRun(i, builder, classifyingResult);
 							setText(builder.toString());
 						}
 					}
 				};
 				three = new NotifyingThread() {
 					public void doRun() {
-						for (int i = 43; i < 64; i++) {
-							threadRun(i, builder, classifyingResult, costResult);
+						for (int i = 42; i < 63; i++) {
+							threadRun(i, builder, classifyingResult);
 							setText(builder.toString());
 						}
 					}
@@ -224,12 +220,11 @@ public class AllClassifiers extends JFrame implements ThreadCompleteListener {
 		m_RunBtn.setEnabled(true);
 	}
 	
-	private void threadRun(int classifierCode, StringBuilder builder, TreeMap<Double, Classifier> classifyingResult, TreeMap<Double, Classifier> costResult) {
+	private void threadRun(int classifierCode, StringBuilder builder, TreeMap<Double, Classifier> classifyingResult) {
 		Object[] result = classify(classifierCode);
 		synchronized (this) {
-			builder.append( ((Classifier)result[0]).getClass().getSimpleName() + ":\t\t" + result[1] + "\t\t" + result[2] + "\n" );
+			builder.append( ((Classifier)result[0]).getClass().getSimpleName() + ":\t\t" + result[1] + "\n" );
 			classifyingResult.put((Double)result[1], (Classifier)result[0]);
-			costResult.put((Double)result[2], (Classifier)result[0]);
 		}
 	}
 	
@@ -254,185 +249,182 @@ public class AllClassifiers extends JFrame implements ThreadCompleteListener {
 			break;
 			
 		case 5:
-			classifier = new LibLINEAR();
-			break;
-		case 6:
 			classifier = new LibSVM();
 			break;
-		case 7:
+		case 6:
 			classifier = new Logistic();
 			break;
-		case 8:
+		case 57:
 			classifier = new MultilayerPerceptron();
 			break;
-		case 9:
+		case 8:
 			classifier = new RBFNetwork();
 			break;
-		case 10:
+		case 9:
 			classifier = new SimpleLogistic();
 			break;
-		case 11:
+		case 10:
 			classifier = new SMO();
 			break;
 			
-		case 12:
+		case 11:
 			classifier = new IB1();
 			break;
-		case 13:
+		case 12:
 			classifier = new IBk();
 			break;
-		case 14:
+		case 13:
 			classifier = new KStar();
 			break;
-		case 15:
+		case 14:
 			classifier = new LWL();
 			break;
 			
-		case 16:
+		case 15:
 			classifier = new AdaBoostM1();
 			break;
-		case 17:
+		case 16:
 			classifier = new AttributeSelectedClassifier();
 			break;
-		case 18:
+		case 17:
 			classifier = new Bagging();
 			break;
-		case 19:
+		case 18:
 			classifier = new ClassificationViaClustering();
 			break;
-		case 20:
+		case 19:
 			classifier = new ClassificationViaRegression();
 			break;
-		case 21:
+		case 20:
 			classifier = new CVParameterSelection();
 			break;
-		case 22:
+		case 58:
 			classifier = new Dagging();
 			break;
-		case 23:
+		case 22:
 			classifier = new Decorate();
 			break;
-		case 24:
+		case 23:
 			classifier = new END();
 			break;
-		case 25:
+		case 24:
 			classifier = new FilteredClassifier();
 			break;
-		case 26:
+		case 25:
 			classifier = new Grading();
 			break;
-		case 27:
+		case 26:
 			classifier = new LogitBoost();
 			break;
-		case 28:
+		case 27:
 			classifier = new MultiBoostAB();
 			break;
-		case 29:
+		case 28:
 			classifier = new MultiClassClassifier();
 			break;
-		case 30:
+		case 29:
 			classifier = new MultiScheme();
 			break;
-		case 31:
+		case 30:
 			classifier = new ClassBalancedND();
 			break;
-		case 32:
+		case 31:
 			classifier = new DataNearBalancedND();
 			break;
-		case 33:
+		case 32:
 			classifier = new ND();
 			break;
-		case 34:
+		case 33:
 			classifier = new OrdinalClassClassifier();
 			break;
-		case 35:
+		case 34:
 			classifier = new RacedIncrementalLogitBoost();
 			break;
-		case 36:
+		case 35:
 			classifier = new RandomCommittee();
 			break;
-		case 37:
+		case 36:
 			classifier = new RandomSubSpace();
 			break;
-		case 38:
+		case 37:
 			classifier = new RotationForest();
 			break;
-		case 39:
+		case 38:
 			classifier = new Stacking();
 			break;
-		case 40:
+		case 39:
 			classifier = new StackingC();
 			break;
-		case 41:
+		case 40:
 			classifier = new Vote();
 			break;
 			
-		case 42:
+		case 41:
 			classifier = new HyperPipes();
 			break;
-		case 43:
+		case 42:
 			classifier = new VFI();
 			break;
 		
-		case 44:
+		case 43:
 			classifier = new ConjunctiveRule();
 			break;
-		case 45:
+		case 44:
 			classifier = new DecisionTable();
 			break;
-		case 46:
+		case 45:
 			classifier = new DTNB();
 			break;
-		case 47:
+		case 46:
 			classifier = new JRip();
 			break;
-		case 48:
+		case 47:
 			classifier = new NNge();
 			break;
-		case 49:
+		case 48:
 			classifier = new OneR();
 			break;
-		case 50:
+		case 49:
 			classifier = new PART();
 			break;
-		case 51:
+		case 50:
 			classifier = new Ridor();
 			break;
 			
-		case 52:
+		case 51:
 			classifier = new BFTree();
 			break;
-		case 53:
+		case 52:
 			classifier = new DecisionStump();
 			break;
-		case 54:
+		case 53:
 			classifier = new FT();
 			break;
-		case 55:
+		case 54:
 			classifier = new J48();
 			break;
-		case 56:
+		case 55:
 			classifier = new J48graft();
 			break;
-		case 57:
+		case 56:
 			classifier = new LADTree();
 			break;
-		case 58:
+		case 7:
 			classifier = new LMT();
 			break;
-		case 59:
+		case 21:
 			classifier = new NBTree();
 			break;
-		case 60:
+		case 59:
 			classifier = new RandomForest();
 			break;
-		case 61:
+		case 60:
 			classifier = new RandomTree();
 			break;
-		case 62:
+		case 61:
 			classifier = new REPTree();
 			break;
-		case 63:
+		case 62:
 			classifier = new SimpleCart();
 			break;
 		
@@ -443,7 +435,6 @@ public class AllClassifiers extends JFrame implements ThreadCompleteListener {
 		
 		//String result = classifier.getClass().getName() + ":\t\t\t\t";
 		Double pctCorrect = Double.valueOf(0);
-		Double cost = Double.valueOf(0);
 		try {
 			classifier.buildClassifier(trainingData);
 			
@@ -451,16 +442,14 @@ public class AllClassifiers extends JFrame implements ThreadCompleteListener {
 			eval.crossValidateModel(classifier, trainingData, 10, new Random(1));
 			//result += String.valueOf(eval.pctCorrect());
 			pctCorrect = eval.pctCorrect();
-			cost = eval.totalCost();
 		} catch (Exception e) {
 			//result += "error";
 			e.printStackTrace();
 		}
 		
-		Object[] result = new Object[3];
+		Object[] result = new Object[2];
 		result[0] = classifier;
 		result[1] = pctCorrect;
-		result[2] = cost;
 		return result;
 	}
 
@@ -478,9 +467,7 @@ public class AllClassifiers extends JFrame implements ThreadCompleteListener {
 				(thread.getName().equals(three.getName()) && !one.isAlive() && !two.isAlive())
 			) {
 			Entry<Double, Classifier> lastEntry = classifyingResult.lastEntry();
-			Entry<Double, Classifier> firstEntry = costResult.firstEntry();
 			builder.append("---------------\n" + lastEntry.getValue().getClass().getSimpleName() + "\t" + lastEntry.getKey() + "\n");
-			builder.append(firstEntry.getValue().getClass().getSimpleName() + "\t" + firstEntry.getKey());
 			setText(builder.toString());
 			//enableButtons();
 		}
