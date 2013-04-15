@@ -150,7 +150,7 @@ public abstract class NeuralConnection
    * Call this to reset the unit for another run.
    * It is expected by that this unit will call the reset functions of all 
    * input units to it. It is also expected that this will not be done
-   * if the unit has already been reset (or atleast appears to be).
+   * if the unit has already been reset (or at least appears to be).
    */
   public abstract void reset();
 
@@ -205,8 +205,8 @@ public abstract class NeuralConnection
    */
   public void updateWeights(double l, double m) {
     
-    //the action the subclasses should perform is upto them 
-    //but if they coverride they should make a call to this to
+    //the action the subclasses should perform is up to them 
+    //but if they override they should make a call to this to
     //call the method for all their inputs.
     
     if (!m_weightsUpdated) {

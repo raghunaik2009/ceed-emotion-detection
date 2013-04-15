@@ -23,8 +23,8 @@ import java.util.Random;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import weka.classifiers.AbstractClassifier;
 import weka.classifiers.Classifier;
+import weka.classifiers.Evaluation;
 import weka.core.Capabilities;
 import weka.core.Capabilities.Capability;
 import weka.core.Instance;
@@ -145,7 +145,7 @@ import weka.filters.unsupervised.attribute.NominalToBinary;
  * @author Malcolm Ware (mfw4@cs.waikato.ac.nz)
  * @version $Revision: 9444 $
  */
-public class MultilayerPerceptron extends AbstractClassifier implements
+public class MultilayerPerceptron extends Classifier implements
 		OptionHandler, WeightedInstancesHandler, Randomizable {
 
 	/** for serialization */
@@ -159,6 +159,27 @@ public class MultilayerPerceptron extends AbstractClassifier implements
 	 */
 	public static void main(String[] argv) {
 		runClassifier(new MultilayerPerceptron(), argv);
+	}
+
+	/**
+	 * runs the classifier instance with the given options.
+	 * 
+	 * @param classifier
+	 *            the classifier to run
+	 * @param options
+	 *            the commandline options
+	 */
+	public static void runClassifier(Classifier classifier, String[] options) {
+		try {
+			System.out.println(Evaluation.evaluateModel(classifier, options));
+		} catch (Exception e) {
+			if (((e.getMessage() != null) && (e.getMessage().indexOf(
+					"General options") == -1))
+					|| (e.getMessage() == null))
+				e.printStackTrace();
+			else
+				System.err.println(e.getMessage());
+		}
 	}
 
 	/**
@@ -1235,7 +1256,7 @@ public class MultilayerPerceptron extends AbstractClassifier implements
 		m_error = 0;
 		m_instances = null;
 		m_currentInstance = null;
-		
+
 		m_outputs = new NeuralEnd[0];
 		m_inputs = new NeuralEnd[0];
 		m_numAttributes = 0;
@@ -1420,13 +1441,13 @@ public class MultilayerPerceptron extends AbstractClassifier implements
 						&& !m_accepted) {
 					m_stopIt = true;
 					m_stopped = true;
-					
+
 					blocker(true);
 					if (m_numeric) {
 						setEndsToLinear();
 					}
 				}
-				
+
 				m_stopped = false;
 				// if the network has been accepted stop the training loop
 				if (m_accepted) {
