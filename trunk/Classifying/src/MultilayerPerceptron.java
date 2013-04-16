@@ -18,10 +18,8 @@
  *    Copyright (C) 2000-2012 University of Waikato, Hamilton, New Zealand
  */
 
-import java.util.Enumeration;
 import java.util.Random;
 import java.util.StringTokenizer;
-import java.util.Vector;
 
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
@@ -29,10 +27,8 @@ import weka.core.Capabilities;
 import weka.core.Capabilities.Capability;
 import weka.core.Instance;
 import weka.core.Instances;
-import weka.core.Option;
 import weka.core.OptionHandler;
 import weka.core.Randomizable;
-import weka.core.RevisionUtils;
 import weka.core.Utils;
 import weka.core.WeightedInstancesHandler;
 import weka.filters.Filter;
@@ -90,12 +86,6 @@ import weka.filters.unsupervised.attribute.NominalToBinary;
  * </pre>
  * 
  * <pre>
- * -G
- *  GUI will be opened.
- *  (Use this to bring up a GUI).
- * </pre>
- * 
- * <pre>
  * -A
  *  Autocreation of the network connections will NOT be done.
  *  (This will be ignored if -G is NOT set)
@@ -114,12 +104,6 @@ import weka.filters.unsupervised.attribute.NominalToBinary;
  *  numbers or the letters 'a' = (attribs + classes) / 2, 
  *  'i' = attribs, 'o' = classes, 't' = attribs .+ classes)
  *  for wildcard values, Default = a).
- * </pre>
- * 
- * <pre>
- * -C
- *  Normalizing a numeric class will NOT be done.
- *  (Set this to not normalize the class if it's numeric).
  * </pre>
  * 
  * <pre>
@@ -145,8 +129,8 @@ import weka.filters.unsupervised.attribute.NominalToBinary;
  * @author Malcolm Ware (mfw4@cs.waikato.ac.nz)
  * @version $Revision: 9444 $
  */
-public class MultilayerPerceptron extends Classifier implements
-		OptionHandler, WeightedInstancesHandler, Randomizable {
+public class MultilayerPerceptron extends Classifier implements OptionHandler,
+		WeightedInstancesHandler, Randomizable {
 
 	/** for serialization */
 	private static final long serialVersionUID = -5990607817048210779L;
@@ -167,7 +151,7 @@ public class MultilayerPerceptron extends Classifier implements
 	 * @param classifier
 	 *            the classifier to run
 	 * @param options
-	 *            the commandline options
+	 *            the command-line options
 	 */
 	public static void runClassifier(Classifier classifier, String[] options) {
 		try {
@@ -224,13 +208,11 @@ public class MultilayerPerceptron extends Classifier implements
 		 *         calculated.
 		 */
 		public double outputValue(boolean calculate) {
-
 			if (Double.isNaN(m_unitValue) && calculate) {
 				if (m_input) {
 					if (m_currentInstance.isMissing(m_link)) {
 						m_unitValue = 0;
 					} else {
-
 						m_unitValue = m_currentInstance.value(m_link);
 					}
 				} else {
@@ -238,19 +220,16 @@ public class MultilayerPerceptron extends Classifier implements
 					m_unitValue = 0;
 					for (int noa = 0; noa < m_numInputs; noa++) {
 						m_unitValue += m_inputList[noa].outputValue(true);
-
 					}
 					if (m_numeric && m_normalizeClass) {
 						// then scale the value;
 						// this scales linearly from between -1 and 1
-						m_unitValue = m_unitValue
-								* m_attributeRanges[m_instances.classIndex()]
+						m_unitValue = m_unitValue * m_attributeRanges[m_instances.classIndex()]
 								+ m_attributeBases[m_instances.classIndex()];
 					}
 				}
 			}
 			return m_unitValue;
-
 		}
 
 		/**
@@ -264,10 +243,7 @@ public class MultilayerPerceptron extends Classifier implements
 		 *         calculated.
 		 */
 		public double errorValue(boolean calculate) {
-
-			if (!Double.isNaN(m_unitValue) && Double.isNaN(m_unitError)
-					&& calculate) {
-
+			if (!Double.isNaN(m_unitValue) && Double.isNaN(m_unitError) && calculate) {
 				if (m_input) {
 					m_unitError = 0;
 					for (int noa = 0; noa < m_numOutputs; noa++) {
@@ -283,7 +259,6 @@ public class MultilayerPerceptron extends Classifier implements
 							m_unitError = 0 - m_unitValue;
 						}
 					} else if (m_numeric) {
-
 						if (m_normalizeClass) {
 							if (m_attributeRanges[m_instances.classIndex()] == 0) {
 								m_unitError = 0;
@@ -292,11 +267,9 @@ public class MultilayerPerceptron extends Classifier implements
 										/ m_attributeRanges[m_instances
 												.classIndex()];
 								// m_numericRange;
-
 							}
 						} else {
-							m_unitError = m_currentInstance.classValue()
-									- m_unitValue;
+							m_unitError = m_currentInstance.classValue() - m_unitValue;
 						}
 					}
 				}
@@ -311,7 +284,6 @@ public class MultilayerPerceptron extends Classifier implements
 		 * update for the listeners will be performed.
 		 */
 		public void reset() {
-
 			if (!Double.isNaN(m_unitValue) || !Double.isNaN(m_unitError)) {
 				m_unitValue = Double.NaN;
 				m_unitError = Double.NaN;
@@ -374,15 +346,6 @@ public class MultilayerPerceptron extends Classifier implements
 		public int getLink() {
 			return m_link;
 		}
-
-		/**
-		 * Returns the revision string.
-		 * 
-		 * @return the revision
-		 */
-		public String getRevision() {
-			return RevisionUtils.extract("$Revision: 9444 $");
-		}
 	}
 
 	/**
@@ -409,10 +372,10 @@ public class MultilayerPerceptron extends Classifier implements
 	/** The base values for all the attributes. */
 	private double[] m_attributeBases;
 
-	/** The output units.(only feeds the errors, does no calcs) */
+	/** The output units.(only feeds the errors, does no calculation) */
 	private NeuralEnd[] m_outputs;
 
-	/** The input units.(only feeds the inputs does no calcs) */
+	/** The input units.(only feeds the inputs, does no calculation) */
 	private NeuralEnd[] m_inputs;
 
 	/** All the nodes that actually comprise the logical neural net. */
@@ -422,20 +385,13 @@ public class MultilayerPerceptron extends Classifier implements
 	private int m_numClasses = 0;
 
 	/** The number of attributes. */
-	private int m_numAttributes = 0; // note the number doesn't include the
-										// class.
+	private int m_numAttributes = 0; // note the number doesn't include the class.
 
 	/** The next id number available for default naming. */
 	private int m_nextId;
 
 	/** The number of epochs to train through. */
 	private int m_numEpochs;
-
-	/** a flag to state if the network should be running, or stopped. */
-	private boolean m_stopIt;
-
-	/** a flag to state that the network has in fact stopped. */
-	private boolean m_stopped;
 
 	/** a flag to state that the network should be accepted the way it is. */
 	private boolean m_accepted;
@@ -444,12 +400,6 @@ public class MultilayerPerceptron extends Classifier implements
 	 * A flag to tell the build classifier to automatically build a neural net.
 	 */
 	private boolean m_autoBuild;
-
-	/**
-	 * A flag to state that the gui for the network should be brought up. To
-	 * allow interaction while training.
-	 */
-	private boolean m_gui;
 
 	/** An int to say how big the validation set should be. */
 	private int m_valSize;
@@ -483,12 +433,6 @@ public class MultilayerPerceptron extends Classifier implements
 
 	/** This is the momentum for the network. */
 	private double m_momentum;
-
-	/** Shows the number of the epoch that the network just finished. */
-	private int m_epoch;
-
-	/** Shows the error of the epoch that the network just finished. */
-	private double m_error;
 
 	/**
 	 * This flag states that the user wants the network to restart if it is
@@ -525,17 +469,13 @@ public class MultilayerPerceptron extends Classifier implements
 	public MultilayerPerceptron() {
 		m_instances = null;
 		m_currentInstance = null;
-		m_epoch = 0;
-		m_error = 0;
-
+		
 		m_outputs = new NeuralEnd[0];
 		m_inputs = new NeuralEnd[0];
 		m_numAttributes = 0;
 		m_numClasses = 0;
 		m_neuralNodes = new NeuralConnection[0];
 		m_nextId = 0;
-		m_stopIt = true;
-		m_stopped = true;
 		m_accepted = false;
 		m_numeric = false;
 		m_random = null;
@@ -544,13 +484,11 @@ public class MultilayerPerceptron extends Classifier implements
 		m_linearUnit = new LinearUnit();
 		// setting all the options to their defaults. To completely change these
 		// defaults they will also need to be changed down the bottom in the
-		// setoptions function (the text info in the accompanying functions
-		// should
-		// also be changed to reflect the new defaults
+		// set options function (the text info in the accompanying functions
+		// should also be changed to reflect the new defaults
 		m_normalizeClass = true;
 		m_normalizeAttributes = true;
 		m_autoBuild = true;
-		m_gui = false;
 		m_useNomToBin = true;
 		m_driftThreshold = 20;
 		m_numEpochs = 500;
@@ -591,11 +529,7 @@ public class MultilayerPerceptron extends Classifier implements
 	 *            and set the learning rate to half what it currently is.
 	 */
 	public void setReset(boolean r) {
-		if (m_gui) {
-			r = false;
-		}
 		m_reset = r;
-
 	}
 
 	/**
@@ -603,23 +537,6 @@ public class MultilayerPerceptron extends Classifier implements
 	 */
 	public boolean getReset() {
 		return m_reset;
-	}
-
-	/**
-	 * @param c
-	 *            True if the class should be normalized (the class will only
-	 *            ever be normalized if it is numeric). (Normalization puts the
-	 *            range between -1 - 1).
-	 */
-	public void setNormalizeNumericClass(boolean c) {
-		m_normalizeClass = c;
-	}
-
-	/**
-	 * @return The flag for normalizing a numeric class.
-	 */
-	public boolean getNormalizeNumericClass() {
-		return m_normalizeClass;
 	}
 
 	/**
@@ -745,9 +662,6 @@ public class MultilayerPerceptron extends Classifier implements
 	 *            True if the network should be auto built.
 	 */
 	public void setAutoBuild(boolean a) {
-		if (!m_gui) {
-			a = true;
-		}
 		m_autoBuild = a;
 	}
 
@@ -816,30 +730,6 @@ public class MultilayerPerceptron extends Classifier implements
 	}
 
 	/**
-	 * This will set whether A GUI is brought up to allow interaction by the
-	 * user with the neural network during training.
-	 * 
-	 * @param a
-	 *            True if gui should be created.
-	 */
-	public void setGUI(boolean a) {
-		m_gui = a;
-		if (!a) {
-			setAutoBuild(true);
-
-		} else {
-			setReset(false);
-		}
-	}
-
-	/**
-	 * @return The true if should show gui.
-	 */
-	public boolean getGUI() {
-		return m_gui;
-	}
-
-	/**
 	 * This will set the size of the validation set.
 	 * 
 	 * @param a
@@ -897,7 +787,7 @@ public class MultilayerPerceptron extends Classifier implements
 
 	/**
 	 * Call this function to remove the passed node from the list. This will
-	 * only remove the node if it is in the neuralnodes list.
+	 * only remove the node if it is in the neural nodes list.
 	 * 
 	 * @param n
 	 *            The neuralConnection to remove.
@@ -984,7 +874,7 @@ public class MultilayerPerceptron extends Classifier implements
 	}
 
 	/**
-	 * A function used to stop the code that called buildclassifier from
+	 * A function used to stop the code that called build classifier from
 	 * continuing on before the user has finished the decision tree.
 	 * 
 	 * @param tf
@@ -1252,8 +1142,6 @@ public class MultilayerPerceptron extends Classifier implements
 			m_useDefaultModel = false;
 		}
 
-		m_epoch = 0;
-		m_error = 0;
 		m_instances = null;
 		m_currentInstance = null;
 
@@ -1264,8 +1152,6 @@ public class MultilayerPerceptron extends Classifier implements
 		m_neuralNodes = new NeuralConnection[0];
 
 		m_nextId = 0;
-		m_stopIt = true;
-		m_stopped = true;
 		m_accepted = false;
 		m_instances = new Instances(i);
 		m_random = new Random(m_randomSeed);
@@ -1342,8 +1228,7 @@ public class MultilayerPerceptron extends Classifier implements
 				}
 			}
 		}
-		m_stopped = false;
-
+		
 		for (int noa = 1; noa < m_numEpochs + 1; noa++) {
 			right = 0;
 			for (int nob = numInVal; nob < m_instances.numInstances(); nob++) {
@@ -1431,31 +1316,6 @@ public class MultilayerPerceptron extends Classifier implements
 				}
 				right /= totalValWeight;
 			}
-			m_epoch = noa;
-			m_error = right;
-			// This junction controls what state the gui is in at the end of
-			// each
-			// epoch, Such as if it is paused, if it is resumable etc...
-			if (m_gui) {
-				while ((m_stopIt || (m_epoch >= m_numEpochs && m_valSize == 0))
-						&& !m_accepted) {
-					m_stopIt = true;
-					m_stopped = true;
-
-					blocker(true);
-					if (m_numeric) {
-						setEndsToLinear();
-					}
-				}
-
-				m_stopped = false;
-				// if the network has been accepted stop the training loop
-				if (m_accepted) {
-					m_instances = new Instances(m_instances, 0);
-					m_currentInstance = null;
-					return;
-				}
-			}
 			if (m_accepted) {
 				m_instances = new Instances(m_instances, 0);
 				m_currentInstance = null;
@@ -1531,81 +1391,6 @@ public class MultilayerPerceptron extends Classifier implements
 			theArray[noa] /= count;
 		}
 		return theArray;
-	}
-
-	/**
-	 * Returns an enumeration describing the available options.
-	 * 
-	 * @return an enumeration of all the available options.
-	 */
-	public Enumeration listOptions() {
-
-		Vector newVector = new Vector(14);
-
-		newVector.addElement(new Option(
-				"\tLearning Rate for the backpropagation algorithm.\n"
-						+ "\t(Value should be between 0 - 1, Default = 0.3).",
-				"L", 1, "-L <learning rate>"));
-		newVector.addElement(new Option(
-				"\tMomentum Rate for the backpropagation algorithm.\n"
-						+ "\t(Value should be between 0 - 1, Default = 0.2).",
-				"M", 1, "-M <momentum>"));
-		newVector
-				.addElement(new Option("\tNumber of epochs to train through.\n"
-						+ "\t(Default = 500).", "N", 1, "-N <number of epochs>"));
-		newVector
-				.addElement(new Option(
-						"\tPercentage size of validation set to use to terminate\n"
-								+ "\ttraining (if this is non zero it can pre-empt num of epochs.\n"
-								+ "\t(Value should be between 0 - 100, Default = 0).",
-						"V", 1, "-V <percentage size of validation set>"));
-		newVector
-				.addElement(new Option(
-						"\tThe value used to seed the random number generator\n"
-								+ "\t(Value should be >= 0 and and a long, Default = 0).",
-						"S", 1, "-S <seed>"));
-		newVector.addElement(new Option(
-				"\tThe consequetive number of errors allowed for validation\n"
-						+ "\ttesting before the netwrok terminates.\n"
-						+ "\t(Value should be > 0, Default = 20).", "E", 1,
-				"-E <threshold for number of consequetive errors>"));
-		newVector.addElement(new Option("\tGUI will be opened.\n"
-				+ "\t(Use this to bring up a GUI).", "G", 0, "-G"));
-		newVector.addElement(new Option(
-				"\tAutocreation of the network connections will NOT be done.\n"
-						+ "\t(This will be ignored if -G is NOT set)", "A", 0,
-				"-A"));
-		newVector.addElement(new Option(
-				"\tA NominalToBinary filter will NOT automatically be used.\n"
-						+ "\t(Set this to not use a NominalToBinary filter).",
-				"B", 0, "-B"));
-		newVector
-				.addElement(new Option(
-						"\tThe hidden layers to be created for the network.\n"
-								+ "\t(Value should be a list of comma separated Natural \n"
-								+ "\tnumbers or the letters 'a' = (attribs + classes) / 2, \n"
-								+ "\t'i' = attribs, 'o' = classes, 't' = attribs .+ classes)\n"
-								+ "\tfor wildcard values, Default = a).", "H",
-						1,
-						"-H <comma seperated numbers for nodes on each layer>"));
-		newVector
-				.addElement(new Option(
-						"\tNormalizing a numeric class will NOT be done.\n"
-								+ "\t(Set this to not normalize the class if it's numeric).",
-						"C", 0, "-C"));
-		newVector.addElement(new Option(
-				"\tNormalizing the attributes will NOT be done.\n"
-						+ "\t(Set this to not normalize the attributes).", "I",
-				0, "-I"));
-		newVector.addElement(new Option(
-				"\tReseting the network will NOT be allowed.\n"
-						+ "\t(Set this to not allow the network to reset).",
-				"R", 0, "-R"));
-		newVector.addElement(new Option("\tLearning rate decay will occur.\n"
-				+ "\t(Set this to cause the learning rate to decay).", "D", 0,
-				"-D"));
-
-		return newVector.elements();
 	}
 
 	/**
@@ -1755,15 +1540,6 @@ public class MultilayerPerceptron extends Classifier implements
 		} else {
 			setHiddenLayers("a");
 		}
-		if (Utils.getFlag('G', options)) {
-			setGUI(true);
-		} else {
-			setGUI(false);
-		} // small note. since the gui is the only option that can change the
-			// other
-			// options this should be set first to allow the other options to
-			// set
-			// properly
 		if (Utils.getFlag('A', options)) {
 			setAutoBuild(false);
 		} else {
@@ -1773,11 +1549,6 @@ public class MultilayerPerceptron extends Classifier implements
 			setNominalToBinaryFilter(false);
 		} else {
 			setNominalToBinaryFilter(true);
-		}
-		if (Utils.getFlag('C', options)) {
-			setNormalizeNumericClass(false);
-		} else {
-			setNormalizeNumericClass(true);
 		}
 		if (Utils.getFlag('I', options)) {
 			setNormalizeAttributes(false);
@@ -1821,17 +1592,11 @@ public class MultilayerPerceptron extends Classifier implements
 		options[current++] = "" + getValidationThreshold();
 		options[current++] = "-H";
 		options[current++] = getHiddenLayers();
-		if (getGUI()) {
-			options[current++] = "-G";
-		}
 		if (!getAutoBuild()) {
 			options[current++] = "-A";
 		}
 		if (!getNominalToBinaryFilter()) {
 			options[current++] = "-B";
-		}
-		if (!getNormalizeNumericClass()) {
-			options[current++] = "-C";
 		}
 		if (!getNormalizeAttributes()) {
 			options[current++] = "-I";
@@ -1969,57 +1734,6 @@ public class MultilayerPerceptron extends Classifier implements
 	}
 
 	/**
-	 * @return a string to describe the GUI option.
-	 */
-	public String GUITipText() {
-		return "Brings up a gui interface."
-				+ " This will allow the pausing and altering of the nueral network"
-				+ " during training.\n\n"
-				+ "* To add a node left click (this node will be automatically selected,"
-				+ " ensure no other nodes were selected).\n"
-				+ "* To select a node left click on it either while no other node is"
-				+ " selected or while holding down the control key (this toggles that"
-				+ " node as being selected and not selected.\n"
-				+ "* To connect a node, first have the start node(s) selected, then click"
-				+ " either the end node or on an empty space (this will create a new node"
-				+ " that is connected with the selected nodes). The selection status of"
-				+ " nodes will stay the same after the connection. (Note these are"
-				+ " directed connections, also a connection between two nodes will not"
-				+ " be established more than once and certain connections that are"
-				+ " deemed to be invalid will not be made).\n"
-				+ "* To remove a connection select one of the connected node(s) in the"
-				+ " connection and then right click the other node (it does not matter"
-				+ " whether the node is the start or end the connection will be removed"
-				+ ").\n"
-				+ "* To remove a node right click it while no other nodes (including it)"
-				+ " are selected. (This will also remove all connections to it)\n."
-				+ "* To deselect a node either left click it while holding down control,"
-				+ " or right click on empty space.\n"
-				+ "* The raw inputs are provided from the labels on the left.\n"
-				+ "* The red nodes are hidden layers.\n"
-				+ "* The orange nodes are the output nodes.\n"
-				+ "* The labels on the right show the class the output node represents."
-				+ " Note that with a numeric class the output node will automatically be"
-				+ " made into an unthresholded linear unit.\n\n"
-				+ "Alterations to the neural network can only be done while the network"
-				+ " is not running, This also applies to the learning rate and other"
-				+ " fields on the control panel.\n\n"
-				+ "* You can accept the network as being finished at any time.\n"
-				+ "* The network is automatically paused at the beginning.\n"
-				+ "* There is a running indication of what epoch the network is up to"
-				+ " and what the (rough) error for that epoch was (or for"
-				+ " the validation if that is being used). Note that this error value"
-				+ " is based on a network that changes as the value is computed."
-				+ " (also depending on whether"
-				+ " the class is normalized will effect the error reported for numeric"
-				+ " classes.\n"
-				+ "* Once the network is done it will pause again and either wait to be"
-				+ " accepted or trained more.\n\n"
-				+ "Note that if the gui is not set the network will not require any"
-				+ " interaction.\n";
-	}
-
-	/**
 	 * @return a string to describe the validation size option.
 	 */
 	public String validationSetSizeTipText() {
@@ -2064,16 +1778,6 @@ public class MultilayerPerceptron extends Classifier implements
 	/**
 	 * @return a string to describe the nominal to binary option.
 	 */
-	public String normalizeNumericClassTipText() {
-		return "This will normalize the class if it's numeric."
-				+ " This could help improve performance of the network, It normalizes"
-				+ " the class to be between -1 and 1. Note that this is only internally"
-				+ ", the output will be scaled back to the original range.";
-	}
-
-	/**
-	 * @return a string to describe the nominal to binary option.
-	 */
 	public String normalizeAttributesTipText() {
 		return "This will normalize the attributes."
 				+ " This could help improve performance of the network."
@@ -2107,14 +1811,5 @@ public class MultilayerPerceptron extends Classifier implements
 				+ " rate will not be shown in the gui, only the original learning rate"
 				+ ". If the learning rate is changed in the gui, this is treated as the"
 				+ " starting learning rate.";
-	}
-
-	/**
-	 * Returns the revision string.
-	 * 
-	 * @return the revision
-	 */
-	public String getRevision() {
-		return RevisionUtils.extract("$Revision: 9444 $");
 	}
 }
