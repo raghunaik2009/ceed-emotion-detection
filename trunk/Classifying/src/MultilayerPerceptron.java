@@ -221,12 +221,6 @@ public class MultilayerPerceptron extends Classifier implements OptionHandler,
 					for (int noa = 0; noa < m_numInputs; noa++) {
 						m_unitValue += m_inputList[noa].outputValue(true);
 					}
-					if (m_numeric && m_normalizeClass) {
-						// then scale the value;
-						// this scales linearly from between -1 and 1
-						m_unitValue = m_unitValue * m_attributeRanges[m_instances.classIndex()]
-								+ m_attributeBases[m_instances.classIndex()];
-					}
 				}
 			}
 			return m_unitValue;
@@ -257,19 +251,6 @@ public class MultilayerPerceptron extends Classifier implements OptionHandler,
 							m_unitError = 1 - m_unitValue;
 						} else {
 							m_unitError = 0 - m_unitValue;
-						}
-					} else if (m_numeric) {
-						if (m_normalizeClass) {
-							if (m_attributeRanges[m_instances.classIndex()] == 0) {
-								m_unitError = 0;
-							} else {
-								m_unitError = (m_currentInstance.classValue() - m_unitValue)
-										/ m_attributeRanges[m_instances
-												.classIndex()];
-								// m_numericRange;
-							}
-						} else {
-							m_unitError = m_currentInstance.classValue() - m_unitValue;
 						}
 					}
 				}
@@ -363,9 +344,6 @@ public class MultilayerPerceptron extends Classifier implements OptionHandler,
 	/** The current instance running through the network. */
 	private Instance m_currentInstance;
 
-	/** A flag to say that it's a numeric class. */
-	private boolean m_numeric;
-
 	/** The ranges for all the attributes. */
 	private double[] m_attributeRanges;
 
@@ -395,11 +373,6 @@ public class MultilayerPerceptron extends Classifier implements OptionHandler,
 
 	/** a flag to state that the network should be accepted the way it is. */
 	private boolean m_accepted;
-
-	/**
-	 * A flag to tell the build classifier to automatically build a neural net.
-	 */
-	private boolean m_autoBuild;
 
 	/** An int to say how big the validation set should be. */
 	private int m_valSize;
@@ -446,14 +419,6 @@ public class MultilayerPerceptron extends Classifier implements OptionHandler,
 	private boolean m_reset;
 
 	/**
-	 * This flag states that the user wants the class to be normalized while
-	 * processing in the network is done. (the final answer will be in the
-	 * original range regardless). This option will only be used when the class
-	 * is numeric.
-	 */
-	private boolean m_normalizeClass;
-
-	/**
 	 * this is a sigmoid unit.
 	 */
 	private SigmoidUnit m_sigmoidUnit;
@@ -477,7 +442,6 @@ public class MultilayerPerceptron extends Classifier implements OptionHandler,
 		m_neuralNodes = new NeuralConnection[0];
 		m_nextId = 0;
 		m_accepted = false;
-		m_numeric = false;
 		m_random = null;
 		m_nominalToBinaryFilter = new NominalToBinary();
 		m_sigmoidUnit = new SigmoidUnit();
@@ -486,9 +450,7 @@ public class MultilayerPerceptron extends Classifier implements OptionHandler,
 		// defaults they will also need to be changed down the bottom in the
 		// set options function (the text info in the accompanying functions
 		// should also be changed to reflect the new defaults
-		m_normalizeClass = true;
 		m_normalizeAttributes = true;
-		m_autoBuild = true;
 		m_useNomToBin = true;
 		m_driftThreshold = 20;
 		m_numEpochs = 500;
@@ -654,25 +616,6 @@ public class MultilayerPerceptron extends Classifier implements OptionHandler,
 	}
 
 	/**
-	 * This will set whether the network is automatically built or if it is left
-	 * up to the user. (there is nothing to stop a user from altering an
-	 * autobuilt network however).
-	 * 
-	 * @param a
-	 *            True if the network should be auto built.
-	 */
-	public void setAutoBuild(boolean a) {
-		m_autoBuild = a;
-	}
-
-	/**
-	 * @return The auto build state.
-	 */
-	public boolean getAutoBuild() {
-		return m_autoBuild;
-	}
-
-	/**
 	 * This will set what the hidden layers are made up of when auto build is
 	 * enabled. Note to have no hidden units, just put a single 0, Any more 0's
 	 * will indicate that the string is badly formed and make it unaccepted.
@@ -682,7 +625,7 @@ public class MultilayerPerceptron extends Classifier implements OptionHandler,
 	 * of attributes + number of classes.
 	 * 
 	 * @param h
-	 *            A string with a comma seperated list of numbers. Each number
+	 *            A string with a comma separated list of numbers. Each number
 	 *            is the number of nodes to be on a hidden layer.
 	 */
 	public void setHiddenLayers(String h) {
@@ -698,8 +641,7 @@ public class MultilayerPerceptron extends Classifier implements OptionHandler,
 		while (tok.hasMoreTokens()) {
 			c = tok.nextToken().trim();
 
-			if (c.equals("a") || c.equals("i") || c.equals("o")
-					|| c.equals("t")) {
+			if (c.equals("a") || c.equals("i") || c.equals("o") || c.equals("t")) {
 				tmp += c;
 			} else {
 				dval = Double.valueOf(c).doubleValue();
@@ -786,30 +728,6 @@ public class MultilayerPerceptron extends Classifier implements OptionHandler,
 	}
 
 	/**
-	 * Call this function to remove the passed node from the list. This will
-	 * only remove the node if it is in the neural nodes list.
-	 * 
-	 * @param n
-	 *            The neuralConnection to remove.
-	 * @return True if removed false if not (because it wasn't there).
-	 */
-	private boolean removeNode(NeuralConnection n) {
-		NeuralConnection[] temp1 = new NeuralConnection[m_neuralNodes.length - 1];
-		int skip = 0;
-		for (int noa = 0; noa < m_neuralNodes.length; noa++) {
-			if (n == m_neuralNodes[noa]) {
-				skip++;
-			} else if (!((noa - skip) >= temp1.length)) {
-				temp1[noa - skip] = m_neuralNodes[noa];
-			} else {
-				return false;
-			}
-		}
-		m_neuralNodes = temp1;
-		return true;
-	}
-
-	/**
 	 * This function sets what the m_numeric flag to represent the passed class
 	 * it also performs the normalization of the attributes if applicable and
 	 * sets up the info to normalize the class. (note that regardless of the
@@ -850,24 +768,16 @@ public class MultilayerPerceptron extends Classifier implements OptionHandler,
 				if (noa != inst.classIndex() && m_normalizeAttributes) {
 					for (int i = 0; i < inst.numInstances(); i++) {
 						if (m_attributeRanges[noa] != 0) {
-							inst.instance(i)
-									.setValue(
-											noa,
-											(inst.instance(i).value(noa) - m_attributeBases[noa])
-													/ m_attributeRanges[noa]);
+							inst.instance(i).setValue(
+									noa,
+									(inst.instance(i).value(noa) - m_attributeBases[noa]) / m_attributeRanges[noa]);
 						} else {
 							inst.instance(i).setValue(
 									noa,
-									inst.instance(i).value(noa)
-											- m_attributeBases[noa]);
+									inst.instance(i).value(noa) - m_attributeBases[noa]);
 						}
 					}
 				}
-			}
-			if (inst.classAttribute().isNumeric()) {
-				m_numeric = true;
-			} else {
-				m_numeric = false;
 			}
 		}
 		return inst;
@@ -924,14 +834,13 @@ public class MultilayerPerceptron extends Classifier implements OptionHandler,
 		for (int noc = 0; noc < m_numAttributes; noc++) {
 			// get the errors.
 			m_inputs[noc].errorValue(true);
-
 		}
+		
 		for (int noc = 0; noc < m_numClasses; noc++) {
 			temp = m_outputs[noc].errorValue(false);
 			ret += temp * temp;
 		}
 		return ret;
-
 	}
 
 	/**
@@ -948,7 +857,6 @@ public class MultilayerPerceptron extends Classifier implements OptionHandler,
 			// update weights
 			m_outputs[noc].updateWeights(l, m);
 		}
-
 	}
 
 	/**
@@ -959,9 +867,7 @@ public class MultilayerPerceptron extends Classifier implements OptionHandler,
 		int now = 0;
 		for (int noa = 0; noa < m_numAttributes + 1; noa++) {
 			if (m_instances.classIndex() != noa) {
-				m_inputs[noa - now] = new NeuralEnd(m_instances.attribute(noa)
-						.name());
-
+				m_inputs[noa - now] = new NeuralEnd(m_instances.attribute(noa).name());
 				m_inputs[noa - now].setLink(true, noa);
 			} else {
 				now = 1;
@@ -974,16 +880,9 @@ public class MultilayerPerceptron extends Classifier implements OptionHandler,
 	 * This creates the required output units.
 	 */
 	private void setupOutputs() throws Exception {
-
 		m_outputs = new NeuralEnd[m_numClasses];
 		for (int noa = 0; noa < m_numClasses; noa++) {
-			if (m_numeric) {
-				m_outputs[noa] = new NeuralEnd(m_instances.classAttribute()
-						.name());
-			} else {
-				m_outputs[noa] = new NeuralEnd(m_instances.classAttribute()
-						.value(noa));
-			}
+			m_outputs[noa] = new NeuralEnd(m_instances.classAttribute().value(noa));
 
 			m_outputs[noa].setLink(false, noa);
 			NeuralNode temp = new NeuralNode(String.valueOf(m_nextId),
@@ -992,7 +891,6 @@ public class MultilayerPerceptron extends Classifier implements OptionHandler,
 			addNode(temp);
 			NeuralConnection.connect(temp, m_outputs[noa]);
 		}
-
 	}
 
 	/**
@@ -1183,13 +1081,10 @@ public class MultilayerPerceptron extends Classifier implements OptionHandler,
 		setupInputs();
 
 		setupOutputs();
-		if (m_autoBuild) {
-			setupHiddenLayer();
-		}
+		setupHiddenLayer();
 
 		// For silly situations in which the network gets accepted before
-		// training
-		// commenses
+		// training commences
 		if (m_numeric) {
 			setEndsToLinear();
 		}
@@ -1439,36 +1334,18 @@ public class MultilayerPerceptron extends Classifier implements OptionHandler,
 	 * </pre>
 	 * 
 	 * <pre>
-	 * -G
-	 *  GUI will be opened.
-	 *  (Use this to bring up a GUI).
-	 * </pre>
-	 * 
-	 * <pre>
-	 * -A
-	 *  Autocreation of the network connections will NOT be done.
-	 *  (This will be ignored if -G is NOT set)
-	 * </pre>
-	 * 
-	 * <pre>
 	 * -B
 	 *  A NominalToBinary filter will NOT automatically be used.
 	 *  (Set this to not use a NominalToBinary filter).
 	 * </pre>
 	 * 
 	 * <pre>
-	 * -H &lt;comma seperated numbers for nodes on each layer&gt;
+	 * -H &lt;comma separated numbers for nodes on each layer&gt;
 	 *  The hidden layers to be created for the network.
 	 *  (Value should be a list of comma separated Natural 
 	 *  numbers or the letters 'a' = (attribs + classes) / 2, 
 	 *  'i' = attribs, 'o' = classes, 't' = attribs .+ classes)
 	 *  for wildcard values, Default = a).
-	 * </pre>
-	 * 
-	 * <pre>
-	 * -C
-	 *  Normalizing a numeric class will NOT be done.
-	 *  (Set this to not normalize the class if it's numeric).
 	 * </pre>
 	 * 
 	 * <pre>
@@ -1540,11 +1417,6 @@ public class MultilayerPerceptron extends Classifier implements OptionHandler,
 		} else {
 			setHiddenLayers("a");
 		}
-		if (Utils.getFlag('A', options)) {
-			setAutoBuild(false);
-		} else {
-			setAutoBuild(true);
-		}
 		if (Utils.getFlag('B', options)) {
 			setNominalToBinaryFilter(false);
 		} else {
@@ -1592,9 +1464,6 @@ public class MultilayerPerceptron extends Classifier implements OptionHandler,
 		options[current++] = "" + getValidationThreshold();
 		options[current++] = "-H";
 		options[current++] = getHiddenLayers();
-		if (!getAutoBuild()) {
-			options[current++] = "-A";
-		}
 		if (!getNominalToBinaryFilter()) {
 			options[current++] = "-B";
 		}
@@ -1709,13 +1578,6 @@ public class MultilayerPerceptron extends Classifier implements OptionHandler,
 	}
 
 	/**
-	 * @return a string to describe the AutoBuild option.
-	 */
-	public String autoBuildTipText() {
-		return "Adds and connects up hidden layers in the network.";
-	}
-
-	/**
 	 * @return a string to describe the random seed option.
 	 */
 	public String seedTipText() {
@@ -1769,7 +1631,7 @@ public class MultilayerPerceptron extends Classifier implements OptionHandler,
 	public String hiddenLayersTipText() {
 		return "This defines the hidden layers of the neural network."
 				+ " This is a list of positive whole numbers. 1 for each hidden layer."
-				+ " Comma seperated. To have no hidden layers put a single 0 here."
+				+ " Comma separated. To have no hidden layers put a single 0 here."
 				+ " This will only be used if autobuild is set. There are also wildcard"
 				+ " values 'a' = (attribs + classes) / 2, 'i' = attribs, 'o' = classes"
 				+ " , 't' = attribs + classes.";
