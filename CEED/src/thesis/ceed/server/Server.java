@@ -1,30 +1,45 @@
 package thesis.ceed.server;
 
+import java.io.IOException;
+import java.net.*;
+import java.util.ArrayList;
 public class Server {
 	private static final String IPADDRESS = "192.168.1.111";
 	private static final int PORT = 65;
-	
-	public static String getIpaddress() {
+	private ServerSocket serverSocket = null;
+	//private ArrayList<Socket> clientList; 
+	public static int numberOfClient = 0;
+	public static String getIPAddress() {
 		return IPADDRESS;
 	}
 	public static int getPort() {
 		return PORT;
 	}
 	
-	private String receiveSound(){
-		String filePath = null;
-		return filePath;
+	public Server(){
+		//clientList = new ArrayList<Socket>();
+		try {
+			//Step 1: Create a ServerSocket to listen from Client
+			ServerSocket serverSocket = new ServerSocket(7777);
+			
+			while(true){
+			//Step 2: wait for connection from a client
+				//clientList.add(serverSocket.accept());
+				//Socket newClientSocket = serverSocket.accept();
+				numberOfClient++;
+				new ServerProcessThread(serverSocket.accept(), numberOfClient).start();
+				serverSocket.close();
+			}
+		} catch (IOException e) {
+			// TODO: handle exception
+		}
+		
 	}
+	 
 	
-	private Boolean processDB(){
-		return true;
-	}
 	
-	private Boolean processSound(){
-		return true;
-	}
 	
-	private Boolean sendResult(){
-		return true;
-	}
+	
+	
+	
 }
