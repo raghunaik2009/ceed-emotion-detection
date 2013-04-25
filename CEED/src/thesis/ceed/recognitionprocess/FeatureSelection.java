@@ -14,10 +14,10 @@ import weka.filters.Filter;
 
 
 public class FeatureSelection {
-	public Boolean selectFeature(String arffFilePath){
+	public static Boolean selectFeature(String arffFilePath){
 		Instances newData = null;
 		try {
-			BufferedReader reader = new BufferedReader(new FileReader("C:\\training.arff"));
+			BufferedReader reader = new BufferedReader(new FileReader(arffFilePath));
 			Instances data = new Instances(reader);
 			reader.close();
 			
@@ -32,12 +32,10 @@ public class FeatureSelection {
 			attributeSelection.setInputFormat(data);
 			newData = Filter.useFilter(data, attributeSelection);
 			System.out.println(newData);
-			BufferedWriter writer = new BufferedWriter( new FileWriter("C:\\test\\selectedFeature.arff"));
+			BufferedWriter writer = new BufferedWriter( new FileWriter("D:\\test\\selectedFeature.arff"));
 			writer.write(newData.toString());
 			writer.flush();
-			writer.close();			
-			
-			
+			writer.close();						
 			//int[] index = attributeSelection.selectedAttributes();
 			//System.out.println(Utils.arrayToString(index));
 		} catch (FileNotFoundException e) {
