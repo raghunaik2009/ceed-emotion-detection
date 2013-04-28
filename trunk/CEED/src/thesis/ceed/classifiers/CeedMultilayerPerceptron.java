@@ -1,3 +1,5 @@
+package thesis.ceed.classifiers;
+
 import java.util.Random;
 
 import weka.classifiers.Classifier;
@@ -9,7 +11,7 @@ import weka.core.WeightedInstancesHandler;
 import weka.filters.Filter;
 import weka.filters.unsupervised.attribute.NominalToBinary;
 
-public class MultilayerPerceptron extends Classifier implements WeightedInstancesHandler {
+public class CeedMultilayerPerceptron extends Classifier implements WeightedInstancesHandler {
 
 	/** for serialization */
 	private static final long serialVersionUID = -5990607817048210779L;
@@ -21,7 +23,7 @@ public class MultilayerPerceptron extends Classifier implements WeightedInstance
 	 *            should contain command line options (see setOptions)
 	 */
 	public static void main(String[] argv) {
-		runClassifier(new MultilayerPerceptron(), argv);
+		runClassifier(new CeedMultilayerPerceptron(), argv);
 	}
 
 	/**
@@ -223,7 +225,7 @@ public class MultilayerPerceptron extends Classifier implements WeightedInstance
 	// How many times in a row the validation set error can't get better before training is terminated.
 	private int m_driftThreshold;
 
-	public MultilayerPerceptron() {
+	public CeedMultilayerPerceptron() {
 		m_instances = null;
 		m_currentInstance = null;
 		m_outputs = new NeuralEnd[0];
