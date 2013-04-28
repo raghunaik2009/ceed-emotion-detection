@@ -33,7 +33,7 @@ import weka.classifiers.bayes.NaiveBayesSimple;
 import weka.classifiers.bayes.NaiveBayesUpdateable;
 import weka.classifiers.functions.LibSVM;
 import weka.classifiers.functions.Logistic;
-import weka.classifiers.functions.MultilayerPerceptron;
+//import weka.classifiers.functions.MultilayerPerceptron;
 import weka.classifiers.functions.RBFNetwork;
 import weka.classifiers.functions.SMO;
 import weka.classifiers.functions.SimpleLogistic;
@@ -163,7 +163,7 @@ public class AllClassifiers extends JFrame implements ThreadCompleteListener {
 				setText("");
 				m_OpenBtn.setEnabled(false);
 				m_RunBtn.setEnabled(false);
-				one = new NotifyingThread() {
+				/*one = new NotifyingThread() {
 					public void doRun() {
 						for (int i = 0; i < 21; i++) {
 							threadRun(i, builder, classifyingResult);
@@ -192,7 +192,9 @@ public class AllClassifiers extends JFrame implements ThreadCompleteListener {
 				three.addListener(AllClassifiers.this);
 				one.start();
 				two.start();
-				three.start();
+				three.start();*/
+				threadRun(57, builder, classifyingResult);
+				setText(builder.toString());
 			}
 		});
 		
