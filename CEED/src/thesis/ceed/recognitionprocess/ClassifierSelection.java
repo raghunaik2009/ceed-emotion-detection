@@ -12,7 +12,7 @@ import thesis.ceed.classifiers.CeedClassifier;
 import weka.core.Instances;
 
 public class ClassifierSelection {
-	public static final String CLASSIFIER_STORE = "DE_CLSFR.ceed";
+	public static final String CLASSIFIER_STORE = ".\\Training\\DE.cls";
 	
 	public static boolean selectClassifier(String selectedAttArffFilePath) {
 		TreeMap<Double, Integer> classifyingResult = new TreeMap<Double, Integer>();
@@ -32,11 +32,9 @@ public class ClassifierSelection {
 			
 			return true;
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return false;
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return false;
 		}
