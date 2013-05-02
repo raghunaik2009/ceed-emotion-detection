@@ -20,9 +20,17 @@ public class RecordingWav {
 	private int bufferSize = 0;
 	private Thread recordThread = null;
 	public boolean isRecording = false;
-	
+	private String fileNameSaved = null;
+	public String getFileNameSaved() {
+		return fileNameSaved;
+	}
+
+	public void setFileNameSaved(String fileNameSaved) {
+		this.fileNameSaved = fileNameSaved;
+	}
 	public RecordingWav(){
 		bufferSize = AudioRecord.getMinBufferSize(SAMPLE_RATE, CHANNELS, AUDIO_ENCODING);
+		fileNameSaved = getFileName();
 	}
 	
 	public String getFileName(){
@@ -112,7 +120,7 @@ public class RecordingWav {
 			recordThread = null;
 		}
 		
-		saveFromTempToWavFile(getTempFileName(), getFileName());
+		saveFromTempToWavFile(getTempFileName(), fileNameSaved);
 		//deleteTempFile();
 	}//end of stopRecording()
 	
