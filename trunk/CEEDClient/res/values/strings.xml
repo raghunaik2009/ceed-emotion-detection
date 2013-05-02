@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">CEEDClient</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string> 
+    <string name="btnSend">Send</string>
+    <string name="txtviewEmotion">Emotion Result</string>
+    <string name="btnSave">Save</string>
+    <string name="btnViewHistory">View History</string>
+    <string name="txtviewStatus">Current Status</string>
+    <string name="txtviewFileName">File Name</string>
+
+</resources>

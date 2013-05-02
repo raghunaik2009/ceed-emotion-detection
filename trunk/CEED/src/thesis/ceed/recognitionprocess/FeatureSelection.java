@@ -7,6 +7,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 
+import weka.attributeSelection.AttributeSelection;
 import weka.attributeSelection.BestFirst;
 import weka.attributeSelection.CfsSubsetEval;
 import weka.core.Instances;
@@ -28,9 +29,16 @@ public class FeatureSelection {
 			attributeSelection.setEvaluator(eval);
 			attributeSelection.setSearch(search);
 			
-			//attributeSelection.SelectAttributes(data);
+			AttributeSelection attset = new AttributeSelection();
+			attset.setEvaluator(eval);
+			attset.setSearch(search);
+			attset.SelectAttributes(data);
+			
+			
+			
 			attributeSelection.setInputFormat(data);
 			newData = Filter.useFilter(data, attributeSelection);
+			
 			System.out.println(newData);
 			BufferedWriter writer = new BufferedWriter( new FileWriter("D:\\test\\selectedFeature.arff"));
 			writer.write(newData.toString());
