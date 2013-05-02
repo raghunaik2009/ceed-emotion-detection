@@ -1,5 +1,7 @@
 package thesis.ceed.server.ui;
 
+import java.awt.BorderLayout;
+import java.awt.Container;
 import java.util.Date;
 
 import javax.swing.JFrame;
@@ -12,51 +14,27 @@ public class ServerWindow extends JFrame {
 	
 	private static final long serialVersionUID = -2627869533995160107L;
 	
-	/*private static String DEFAULT_DB_PATH = "D:\\EMODB";
-	private JPanel mainPanel;
-	private JButton btnSelectDBPath;
-	private JButton btnRunPraat;
-	private JButton btnAttributeSelection;
-	private JLabel lblStatus;*/
-	private JTabbedPane tabPane = new JTabbedPane();
+	private JTabbedPane tabPane;
+	private TrainingPanel trnPanel;
 	private StatisticsPanel statPanel;
 	
 	public ServerWindow(){
+		trnPanel = new TrainingPanel();
 		statPanel = new StatisticsPanel();
 		
+		tabPane = new JTabbedPane();
+		tabPane.addTab("Training", null, trnPanel, "Training Panel");
+		tabPane.setSelectedIndex(0);
+		tabPane.addTab("Statistics", null, statPanel, "Statistics Panel");
 		
-		
-		
-		
-		
-		
-		
-		//Init components
-/*		mainPanel = new JPanel();
-		btnSelectDBPath = new JButton("Select Database Folder");
-		btnRunPraat = new JButton("Run Praat");
-		btnRunPraat.setEnabled(false);
-		btnAttributeSelection = new JButton("Attribute Selection");
-		btnAttributeSelection.setEnabled(false);
-		lblStatus = new JLabel("");		
-		fileChooser = new JFileChooser(DEFAULT_DB_PATH);
-		
-		//Set layout for mainPanel
-		mainPanel.setLayout(new FlowLayout());
-		//Add control to Panel
-		mainPanel.add(btnSelectDBPath);
-		mainPanel.add(btnRunPraat);
-		mainPanel.add(btnAttributeSelection);
-		mainPanel.add(lblStatus);
-		
-		//Add Panel to this Frame and Set info for this Frame
-		this.setContentPane(mainPanel);*/
-		this.setContentPane(statPanel);
-		this.setTitle("CEED Server");
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		Container container = getContentPane();
+		container.setLayout(new BorderLayout());
+		container.add(tabPane, BorderLayout.CENTER);
+		setTitle("CEED Server");
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		//Rearrange components to fit the Frame
-		this.pack();
-		this.setVisible(true);
+		pack();
+		setVisible(true);
 	}
 	
 	public static void main(String[] argv) {
