@@ -1,0 +1,118 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
+
+    <LinearLayout
+        android:id="@+id/llayout1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:weightSum="2"
+        android:orientation="vertical" >
+        
+        <RelativeLayout
+            android:id="@+id/rlayout11"
+            android:layout_width="match_parent"
+            android:layout_height="0dip"
+            android:gravity="center_horizontal"
+            android:layout_weight="1"
+            >
+            <ImageView
+	            android:id="@+id/imgviewRecord"
+	            android:layout_width="70dip"
+	            android:layout_height="70dip" 
+	            android:src="@drawable/ic_record"/>   	
+
+	        <ImageView
+	            android:id="@+id/imgviewStop"
+	            android:layout_width="70dip"
+	            android:layout_height="70dip" 
+	            android:layout_toRightOf="@+id/imgviewRecord"	            
+	            android:src="@drawable/ic_stop" />
+	        <ImageView
+	            android:id="@+id/imgviewPlay"
+	            android:layout_width="70dip"
+	            android:layout_height="70dip" 
+	            android:layout_toRightOf="@+id/imgviewStop"
+	            android:src="@drawable/ic_play" />
+	        <ImageView
+	            android:id="@+id/imgviewSDcard"
+	            android:layout_width="70dip"
+	            android:layout_height="70dip" 
+	            android:layout_toRightOf="@+id/imgviewPlay"
+	            android:src="@drawable/ic_sdcard" />
+        </RelativeLayout>	
+        <LinearLayout
+            android:id="@+id/llayout12"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+           	android:orientation="vertical"
+           	android:layout_gravity="center_horizontal"
+            >   
+            
+	        <TextView
+	            android:id="@+id/txtviewStatus"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:text="@string/txtviewStatus"/>
+	        <TextView
+	            android:id="@+id/txtviewFileName"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:text="@string/txtviewFileName"/>
+            <Button
+		    android:id="@+id/btnSend"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:layout_gravity="center_horizontal"
+		    android:text="@string/btnSend"/>
+            </LinearLayout>	
+	</LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/relativelayout1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/llayout1"
+        android:orientation="vertical"
+        android:gravity="center_horizontal">
+
+        <ImageView
+            android:id="@+id/imgviewEmotion"
+            android:layout_width="250dip"
+            android:layout_height="250dip"
+            android:layout_gravity="center_vertical"
+            android:src="@drawable/happy" />
+
+        <TextView
+            android:id="@+id/txtviewEmotion"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:layout_below="@+id/imgviewEmotion"
+            android:text="@string/txtviewEmotion"/>
+        
+    </RelativeLayout>
+	
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true" 
+        android:weightSum="2"    
+        android:gravity="center_horizontal">
+        <Button
+            android:id="@+id/btnSave"
+            android:layout_width="0dip"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="@string/btnSave"/>
+        <Button
+	        android:id="@+id/btnViewHistory"
+	        android:layout_width="0dip"
+	        android:layout_weight="1"
+	        android:layout_height="wrap_content"               
+	        android:text="@string/btnViewHistory"/>
+    </LinearLayout>
+</RelativeLayout>

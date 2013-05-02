@@ -35,7 +35,7 @@ public class ServerProcessThread extends Thread{
 	
 	@Override
 	public void run() {
-		// TODO Auto-generated method stub
+		
 		super.run();
 		getIOStreams();
 		processIOStreams();
@@ -47,7 +47,7 @@ public class ServerProcessThread extends Thread{
 			inStream = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			outStream = new OutputStreamWriter(new DataOutputStream(socket.getOutputStream()));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			
 			e.printStackTrace();
 		}		
 	}
@@ -58,7 +58,7 @@ public class ServerProcessThread extends Thread{
 			currentSoundPathOnServer = receiveSound(dataFromClient);
 			processSound();			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			
 			e.printStackTrace();
 		}
 	}
@@ -94,10 +94,10 @@ public class ServerProcessThread extends Thread{
 			bos.flush();
 			bos.close();
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
+			
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+		
 			e.printStackTrace();
 		}
 		return savedFile.getAbsolutePath();
@@ -110,7 +110,7 @@ public class ServerProcessThread extends Thread{
 			outStream.write(emoToClient);
 			return true;
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			
 			e.printStackTrace();
 			return false;
 		}		
@@ -126,9 +126,9 @@ public class ServerProcessThread extends Thread{
 		Attempt newAttempt = new Attempt(clientIMEI, currentSoundPathOnServer, "", new Date());
 		String arffFilePath = FeatureExtraction.extractFeature(currentSoundPathOnServer);
 		FeatureSelection.selectFeature(arffFilePath);
-		//Classifier
-		//update Attempt
-		//save Attempt to DB
+		//TODO: Classifier
+		//TODO: update Attempt
+		//TODO: save Attempt to DB
 		sendResult(newAttempt.getEmotion());
 		return true;
 	}
