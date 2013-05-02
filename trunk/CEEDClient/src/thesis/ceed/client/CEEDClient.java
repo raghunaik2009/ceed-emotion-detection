@@ -63,7 +63,7 @@ public class CEEDClient extends Activity {
 				mImgViewRecord.setEnabled(false);				
 				mTxtViewStatus.setText(RECORDING_STATUS);
 				wavRecorder.startRecording();
-				mTxtViewFileName.setText(wavRecorder.getFileName());
+				mTxtViewFileName.setText(wavRecorder.getFileNameSaved());
 			}
 		});
 		
@@ -76,7 +76,7 @@ public class CEEDClient extends Activity {
 				mImgViewStop.setEnabled(false);
 				mImgViewRecord.setEnabled(true);
 				mTxtViewStatus.setText(RECORD_STOPPED_STATUS);
-				mTxtViewFileName.setText(wavRecorder.getFileName());
+				mTxtViewFileName.setText(wavRecorder.getFileNameSaved());
 				wavRecorder.stopRecording();
 			}
 		});
