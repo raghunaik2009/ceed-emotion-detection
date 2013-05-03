@@ -1,4 +1,5 @@
 package thesis.ceed.recognitionprocess;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
@@ -14,10 +15,9 @@ import weka.core.Instances;
 import weka.core.Utils;
 import weka.filters.Filter;
 
-
 public class FeatureSelection {
-	public static final String SELECTED_ARFF_PATH = "D:\\CEED\\Training\\GER.arff";
-	public static final String SELECTED_ATT_PATH = "D:\\CEED\\Training\\GER.att";
+	public static final String SELECTED_ARFF_PATH = "D:\\CEED\\GER\\GER.arff";
+	public static final String SELECTED_ATT_PATH = "D:\\CEED\\GER\\GER.att";
 	public static Boolean selectFeature(String arffFilePath){
 		Instances newData = null;
 		try {

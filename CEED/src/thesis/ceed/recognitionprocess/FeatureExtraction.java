@@ -1,4 +1,5 @@
 package thesis.ceed.recognitionprocess;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -9,13 +10,12 @@ import java.util.ArrayList;
 
 import weka.core.Instances;
 
-
 public class FeatureExtraction {
 	private static String command;
 	private static String PRAAT_PATH = "D:\\CEED\\praatcon.exe";
 	private static String SCRIPT_FOR_FILE_PATH = "D:\\CEED\\file.praat";
 	private static String SCRIPT_FOR_FOLDER_PATH = "D:\\CEED\\folder.praat";
-	public static String FULL_ARFF_PATH = "D:\\CEED\\Training\\GER-full.arff";	
+	public static String FULL_ARFF_PATH = "D:\\CEED\\GER\\GER-full.arff";	
 	
 	public static String extractFeature(String path){
 		
@@ -49,13 +49,13 @@ public class FeatureExtraction {
 					//numberOfAtt++;
 					index.add(temp);
 				}
+				attFileReader.close();
 				
 				//filter full attr. file with newly created array of selected attr.
-				Instances instance;
-				instance = new Instances(new BufferedReader(new FileReader(fullArffFilePath)));
+				Instances instance = new Instances(new BufferedReader(new FileReader(fullArffFilePath)));
 				for(int i = instance.numAttributes() - 2; i >=0 ; i --){
 					if(!index.contains(Integer.valueOf(i)))
-					instance.deleteAttributeAt(i);
+						instance.deleteAttributeAt(i);
 				}
 				
 				String filteredArffFilePath = path.substring(0, indexOfDot) +"_filtered.arff";

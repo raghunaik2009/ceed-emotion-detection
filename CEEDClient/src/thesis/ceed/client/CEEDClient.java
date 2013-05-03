@@ -1,7 +1,16 @@
 package thesis.ceed.client;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.UnknownHostException;
+
 import android.app.Activity;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
+import android.telephony.TelephonyManager;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -29,11 +38,23 @@ public class CEEDClient extends Activity {
 	private Button mBtnViewHistory;
 	
 	private RecordingWav wavRecorder;
-	@Override
+	static TelephonyManager telephony;
+	
+	ClientNet client;
+	@Override 
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_ceedclient);
-		
+		telephony = (TelephonyManager)getSystemService(TELEPHONY_SERVICE);
+		try {
+			ClientNet.connect();
+		} catch (UnknownHostException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		mImgViewRecord = (ImageView)findViewById(R.id.imgviewRecord);
 		mImgViewStop = (ImageView)findViewById(R.id.imgviewStop);
 		mImgViewPlay = (ImageView)findViewById(R.id.imgviewPlay);
@@ -80,6 +101,72 @@ public class CEEDClient extends Activity {
 				wavRecorder.stopRecording();
 			}
 		});
+		
+		mBtnSend.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				try {					
+					ClientNet.send(new File(wavRecorder.getFileNameSaved()));
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			
+			Thread listenForResult = new Thread(){
+				@Override
+				public void run() {
+					String emotion = ClientNet.receiveResult();
+					final int emotionCode = Integer.parseInt(emotion);
+					runOnUiThread(new Runnable() {
+						
+						@Override
+						public void run() {
+							// TODO Auto-generated method stub
+							
+							switch (emotionCode) {
+							case 0:
+								mImgViewEmotion.setImageResource(R.drawable.angry);
+								mTxtViewEmotion.setText("Anger");
+								break;
+							case 1:
+								mImgViewEmotion.setImageResource(R.drawable.boredom);
+								mTxtViewEmotion.setText("Boredom");
+								break;
+							case 2:
+								mImgViewEmotion.setImageResource(R.drawable.disgust);
+								mTxtViewEmotion.setText("Disgust");
+								break;
+							case 3:
+								mImgViewEmotion.setImageResource(R.drawable.fear);
+								mTxtViewEmotion.setText("Fear");
+								break;
+							case 4:
+								mImgViewEmotion.setImageResource(R.drawable.happy);
+								mTxtViewEmotion.setText("Happy");
+								break;
+							case 5:
+								mImgViewEmotion.setImageResource(R.drawable.sad);
+								mTxtViewEmotion.setText("Sad");
+								break;
+							case 6:
+								mImgViewEmotion.setImageResource(R.drawable.neutral);
+								mTxtViewEmotion.setText("Neutral");
+								break;
+							default:
+								break;
+							}
+						}
+					});
+					// TODO Auto-generated method stub
+					super.run();
+				}				
+			};
+		});
+		
+		
 	}
 
 	@Override
