@@ -1,11 +1,13 @@
 package thesis.ceed.client;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
@@ -17,24 +19,30 @@ public class ClientNet {
 	
 	static Socket clientSocket;
 	static BufferedReader fromServer;
-	static DataOutputStream outToServer;
-	
+	//static DataOutputStream outToServer;
+	static OutputStreamWriter outToServer;
 	public static void connect() throws UnknownHostException, IOException {
 		clientSocket = new Socket(SERVER_IP, SERVER_PORT);
-		outToServer = new DataOutputStream(clientSocket.getOutputStream());
+		outToServer = new OutputStreamWriter(new DataOutputStream(clientSocket.getOutputStream()));
 		fromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 	}
 	
 	public static void send(File file) throws IOException {
-		byte[] data = new byte[1048576];
+		int fileSize = (int)file.length();
+		
 		FileInputStream fis = new FileInputStream(file);
-		fis.read(data);
-		fis.close();
+		BufferedInputStream bufferFileInputStream = new BufferedInputStream(fis);
+		
+		byte[] data = new byte[fileSize];
+		bufferFileInputStream.read(data, 0, fileSize);
+		//fis.read(data);
+		//fis.close();
 		String encoded = Base64.encodeToString(data, 0);
 		String imei = CEEDClient.telephony.getDeviceId();
 		String time = String.valueOf(System.currentTimeMillis());
-		String toServer = "#" + imei + "##" + time + "###" + encoded.length() + "####" + encoded + "\n";
-		outToServer.writeBytes(toServer);
+		String toServer = "#" + imei + "##" + time + "###" + fileSize + "####" + encoded + "\n";
+		outToServer.write(toServer);
+		fis.close();
 	}
 	
 	public static String receiveResult() {
