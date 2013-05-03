@@ -37,7 +37,7 @@ public class CEEDClient extends Activity {
 	private Button mBtnSave;
 	private Button mBtnViewHistory;
 	
-	private RecordingWav wavRecorder;
+	static RecordingWav wavRecorder;
 	static TelephonyManager telephony;
 	
 	@Override 

@@ -18,8 +18,7 @@ import thesis.ceed.recognitionprocess.FeatureExtraction;
 import thesis.ceed.recognitionprocess.FeatureSelection;
 import weka.core.Instance;
 import weka.core.Instances;
-
-import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
+import thesis.ceed.utils.*;
 
 public class ServerProcessThread extends Thread {
 	//socket to interact with client
@@ -83,9 +82,9 @@ public class ServerProcessThread extends Thread {
 		if(!newDir.exists())
 			newDir.mkdirs();
 		//Save sound file into corresponding client
-		File savedFile = new File(newDir.getAbsolutePath() + clientIMEI + "_" + recordTime +".wav");
+		File savedFile = new File(newDir.getAbsolutePath() + "\\"+ clientIMEI + "_" + recordTime +".wav");
 		byte[] temp = new byte[fileSize];
-		//decode data back from String to byte[]
+		//decode data back from String to byte[]		
 		temp = Base64.decode(soundData);
 		
 		try {

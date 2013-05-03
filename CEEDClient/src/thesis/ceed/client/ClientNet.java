@@ -10,8 +10,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import thesis.ceed.utils.*;
 
-import android.util.Base64;
 
 public class ClientNet {
 	public static final String SERVER_IP = "192.168.137.1";
@@ -45,14 +45,18 @@ public class ClientNet {
 		
 		byte[] data = new byte[fileSize];
 		bufferFileInputStream.read(data, 0, fileSize);
+		fis.close();
 		//fis.read(data);
 		//fis.close();
-		String encoded = Base64.encodeToString(data, 0);
+		String encoded = Base64.encode(data);
 		String imei = CEEDClient.telephony.getDeviceId();
 		String time = String.valueOf(System.currentTimeMillis());
 		String toServer = "#" + imei + "##" + time + "###" + fileSize + "####" + encoded;
 		outToServer.write(toServer);
-		fis.close();
+		outToServer.write(13);
+		outToServer.write(10);
+		outToServer.flush();
+		
 	}
 	
 	public static String receiveResult() {
