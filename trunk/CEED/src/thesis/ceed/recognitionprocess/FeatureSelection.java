@@ -11,10 +11,13 @@ import weka.attributeSelection.AttributeSelection;
 import weka.attributeSelection.BestFirst;
 import weka.attributeSelection.CfsSubsetEval;
 import weka.core.Instances;
+import weka.core.Utils;
 import weka.filters.Filter;
 
 
 public class FeatureSelection {
+	public static final String SELECTED_ARFF_PATH = "D:\\CEED\\Training\\GER.arff";
+	public static final String SELECTED_ATT_PATH = "D:\\CEED\\Training\\GER.att";
 	public static Boolean selectFeature(String arffFilePath){
 		Instances newData = null;
 		try {
@@ -25,26 +28,25 @@ public class FeatureSelection {
 			weka.filters.supervised.attribute.AttributeSelection attributeSelection = new weka.filters.supervised.attribute.AttributeSelection();
 			CfsSubsetEval eval  = new CfsSubsetEval();
 			BestFirst search = new BestFirst();
-			
 			attributeSelection.setEvaluator(eval);
-			attributeSelection.setSearch(search);
+			attributeSelection.setSearch(search);	
+			attributeSelection.setInputFormat(data);
+			newData = Filter.useFilter(data, attributeSelection);			
+			System.out.println(newData);
+			BufferedWriter writer = new BufferedWriter(new FileWriter(SELECTED_ARFF_PATH));
+			writer.write(newData.toString());
+			writer.flush();
+			writer.close();		
 			
 			AttributeSelection attset = new AttributeSelection();
 			attset.setEvaluator(eval);
 			attset.setSearch(search);
-			attset.SelectAttributes(data);
-			
-			
-			
-			attributeSelection.setInputFormat(data);
-			newData = Filter.useFilter(data, attributeSelection);
-			
-			System.out.println(newData);
-			BufferedWriter writer = new BufferedWriter( new FileWriter("D:\\test\\selectedFeature.arff"));
-			writer.write(newData.toString());
-			writer.flush();
-			writer.close();						
-			//int[] index = attributeSelection.selectedAttributes();
+			attset.SelectAttributes(data);		
+			int[] index = attset.selectedAttributes();
+			BufferedWriter attFileWriter = new BufferedWriter(new FileWriter(SELECTED_ATT_PATH));
+			attFileWriter.write(Utils.arrayToString(index));
+			attFileWriter.flush();
+			attFileWriter.close();
 			//System.out.println(Utils.arrayToString(index));
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block

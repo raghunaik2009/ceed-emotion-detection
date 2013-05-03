@@ -27,6 +27,7 @@ public class ServerProcessThread extends Thread{
 	private OutputStreamWriter outStream;
 	private static char RECEIVE_SOUND_TOKEN = '#';
 	
+	
 	public ServerProcessThread(Socket socket, int clientNumber){
 		this.socket = socket;
 		this.clientIndex = clientNumber;

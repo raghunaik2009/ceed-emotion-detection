@@ -1,25 +1,71 @@
 package thesis.ceed.recognitionprocess;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+
+import weka.core.Instances;
 
 
 public class FeatureExtraction {
 	private static String command;
-	private static String PRAAT_PATH = "D:\\CEED\\praat.exe";
-	private static String SCRIPT_FILE_PATH = "D:\\CEED\\Eg_FeatureExtraction.praat";
-	private static String TRAINING_ARFF_FOLDER_PATH = "D:\\CEED\\Training";
-	private static String TEST_ARFF_FOLDER_PATH = "D:\\CEED\\GER-Arff";
+	private static String PRAAT_PATH = "D:\\CEED\\praatcon.exe";
+	private static String SCRIPT_FOR_FILE_PATH = "D:\\CEED\\file.praat";
+	private static String SCRIPT_FOR_FOLDER_PATH = "D:\\CEED\\folder.praat";
+	public static String FULL_ARFF_PATH = "D:\\CEED\\Training\\GER-full.arff";	
+	
 	public static String extractFeature(String path){
 		
-		int isTraining;
+		//File instance for testing whether receiving a file or folder
+		File testPath = new File(path);	
 		
-		if(path.endsWith(".wav")) isTraining = 0;
-		else isTraining = 1;
 		try {
 			//command = "D:\\praatcon.exe D:\\Eg_FeatureExtraction.praat \""+path+"\\ " + isTraining;
-			command = PRAAT_PATH +" "+ SCRIPT_FILE_PATH+ " \""+path+"\\ " + isTraining;
-			Process p = Runtime.getRuntime().exec(command);
-			//p.getOutputStream()
-			p.waitFor();
+			if(testPath.isDirectory()){
+				command = PRAAT_PATH + " " + SCRIPT_FOR_FOLDER_PATH+ " \""+path+"\\";
+				Process p = Runtime.getRuntime().exec(command);
+				//p.getOutputStream()
+				p.waitFor();
+				return FULL_ARFF_PATH;
+			}
+			if(testPath.isFile()){
+				int indexOfDot = path.indexOf('.');
+				String fullArffFilePath = path.substring(0, indexOfDot) + ".arff";
+				command = PRAAT_PATH + " " + SCRIPT_FOR_FILE_PATH+ " \""+path;
+				Process p = Runtime.getRuntime().exec(command);
+				//p.getOutputStream()
+				p.waitFor();
+				
+				//Reconstruct list of selected attr of this database from .att file
+				FileReader fr = new  FileReader(FeatureSelection.SELECTED_ATT_PATH);
+				BufferedReader attFileReader = new BufferedReader(fr);
+				ArrayList<Integer> index = new ArrayList<Integer>();
+				//int numberOfAtt = 0;
+				while(attFileReader.readLine()!=null){
+					int temp = Integer.parseInt(attFileReader.readLine());
+					//numberOfAtt++;
+					index.add(temp);
+				}
+				
+				//filter full attr. file with newly created array of selected attr.
+				Instances instance;
+				instance = new Instances(new BufferedReader(new FileReader(fullArffFilePath)));
+				for(int i = instance.numAttributes() - 2; i >=0 ; i --){
+					if(!index.contains(Integer.valueOf(i)))
+					instance.deleteAttributeAt(i);
+				}
+				
+				String filteredArffFilePath = path.substring(0, indexOfDot) +"_filtered.arff";
+				BufferedWriter writer = new BufferedWriter(new FileWriter(filteredArffFilePath));
+				writer.write(instance.toString());
+				writer.flush();
+				writer.close();	
+				
+				return filteredArffFilePath;
+			}
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -27,7 +73,6 @@ public class FeatureExtraction {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		if(isTraining == 1) return TRAINING_ARFF_FOLDER_PATH+"\\GER-full.arff";
-		else return TEST_ARFF_FOLDER_PATH+"\\"+path;
+		return "Error while extracting sound features";
 	}
 }
