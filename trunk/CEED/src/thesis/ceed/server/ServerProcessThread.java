@@ -6,37 +6,40 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
-import java.util.Date;
 
+import thesis.ceed.classifiers.CeedClassifier;
+import thesis.ceed.recognitionprocess.ClassifierSelection;
 import thesis.ceed.recognitionprocess.FeatureExtraction;
-import thesis.ceed.recognitionprocess.FeatureSelection;
+import weka.core.Instance;
+import weka.core.Instances;
 
 import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
-public class ServerProcessThread extends Thread{
+
+public class ServerProcessThread extends Thread {
 	//socket to interact with client
 	private Socket socket;
 	//IMEI number of client
 	private String clientIMEI;
+	private String recordTime;
 	private int clientIndex;
 	private String currentSoundPathOnServer = null;
 	private BufferedReader inStream;
 	private OutputStreamWriter outStream;
-	private static char RECEIVE_SOUND_TOKEN = '#';
-	
+	private ServerDbHelper dbHelper;
 	
 	public ServerProcessThread(Socket socket, int clientNumber){
 		this.socket = socket;
 		this.clientIndex = clientNumber;
+		dbHelper = new ServerDbHelper();
 	}
-	
 	
 	@Override
 	public void run() {
-		
 		super.run();
 		getIOStreams();
 		processIOStreams();
@@ -47,8 +50,7 @@ public class ServerProcessThread extends Thread{
 			//Use bufferedReader to make use of its readLine(): String method because we use String analysis as protocol
 			inStream = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			outStream = new OutputStreamWriter(new DataOutputStream(socket.getOutputStream()));
-		} catch (IOException e) {
-			
+		} catch (IOException e) {	
 			e.printStackTrace();
 		}		
 	}
@@ -58,47 +60,42 @@ public class ServerProcessThread extends Thread{
 			String dataFromClient = inStream.readLine();
 			currentSoundPathOnServer = receiveSound(dataFromClient);
 			processSound();			
-		} catch (IOException e) {
-			
+		} catch (IOException e) {	
 			e.printStackTrace();
 		}
 	}
 	
 	private String receiveSound(String clientData){
-		String filePath = null;
-		
-		//Pattern:  #IMEI##SoundName###FileSize####data
+		//Pattern:  #IMEI##Time###base64Size####data
 		int IMEIPos = clientData.indexOf("#") + 1;
-		int namePos = clientData.indexOf("##") + 2;//2 is the lenght of ##
-		int fileSizePos = clientData.indexOf("###") + 3;//3 is the lenght of ###
-		int dataPos = clientData.indexOf("####") + 4;//4 is the lenght of ####
+		int timePos = clientData.indexOf("##") + 2;//2 is the length of ##
+		int base64Pos = clientData.indexOf("###") + 3;//3 is the length of ###
+		int dataPos = clientData.indexOf("####") + 4;//4 is the length of ####
 		//Get sound info from client data stream
-		clientIMEI = clientData.substring(IMEIPos, namePos);
-		String soundName = clientData.substring(namePos, dataPos); 
-		int fileSize = Integer.parseInt(clientData.substring(fileSizePos, dataPos ));
+		clientIMEI = clientData.substring(IMEIPos, timePos);
+		recordTime = clientData.substring(timePos, dataPos); 
+		int base64Size = Integer.parseInt(clientData.substring(base64Pos, dataPos));
 		String soundData = clientData.substring(dataPos);
 		
 		//Create directory if not existed to each client using IMEI number
-		File newDir = new File("D:\\"+clientIMEI);
+		File newDir = new File("D:\\CEED\\" + "GER\\Sound\\");
 		if(!newDir.exists())
-			newDir.mkdir();
+			newDir.mkdirs();
 		//Save sound file into corresponding client
-		File savedFile = new File(newDir.getAbsolutePath()+soundName +".wav");
-		byte[] temp = new byte[fileSize];
+		File savedFile = new File(newDir.getAbsolutePath() + clientIMEI + "_" + recordTime +".wav");
+		byte[] temp = new byte[base64Size];
 		//decode data back from String to byte[]
 		temp = Base64.decode(soundData);
 		
 		try {
 			FileOutputStream fos = new FileOutputStream(savedFile);
 			BufferedOutputStream bos = new BufferedOutputStream(fos);			
-			bos.write(temp, 0, fileSize);
+			bos.write(temp, 0, base64Size);
 			bos.flush();
 			bos.close();
 		} catch (FileNotFoundException e) {
-			
 			e.printStackTrace();
 		} catch (IOException e) {
-		
 			e.printStackTrace();
 		}
 		return savedFile.getAbsolutePath();
@@ -111,28 +108,62 @@ public class ServerProcessThread extends Thread{
 			outStream.write(emoToClient);
 			return true;
 		} catch (IOException e) {
-			
 			e.printStackTrace();
 			return false;
 		}		
-		
-	}
-	
-	private Boolean processDB(){
-		return true;
 	}
 	
 	private Boolean processSound(){
-		Boolean isSuccess = false;
-		Attempt newAttempt = new Attempt(clientIMEI, currentSoundPathOnServer, "", new Date());
-		String arffFilePath = FeatureExtraction.extractFeature(currentSoundPathOnServer);
-		FeatureSelection.selectFeature(arffFilePath);
-		//TODO: Classifier
-		//TODO: update Attempt
-		//TODO: save Attempt to DB
-		sendResult(newAttempt.getEmotion());
+		Attempt newAttempt = new Attempt(clientIMEI, currentSoundPathOnServer, "", recordTime);
+		String filteredArffFilePath = FeatureExtraction.extractFeature(currentSoundPathOnServer);
+		
+		// Classifier
+		String emotion = null;
+		int emoCodeInt = 0;
+		try {
+			Instance instance = (new Instances(new BufferedReader(new FileReader(filteredArffFilePath)))).firstInstance();
+			FileReader fr = new  FileReader(ClassifierSelection.CLASSIFIER_PATH);
+			BufferedReader clsFileReader = new BufferedReader(fr);
+			int clsCode = Integer.parseInt(clsFileReader.readLine());
+			clsFileReader.close();
+			Double emoCode = CeedClassifier.classify(clsCode, null, false, instance);
+			emoCodeInt = emoCode.intValue();
+			switch (emoCodeInt) {
+			case 0:
+				emotion = "Anger";
+				break;
+			case 1:
+				emotion = "Boredom";
+				break;
+			case 2:
+				emotion = "Disgust";
+				break;
+			case 3:
+				emotion = "Fear";
+				break;
+			case 4:
+				emotion = "Happiness";
+				break;
+			case 5:
+				emotion = "Sadness";
+				break;
+			case 6:
+				emotion = "Neutral";
+				break;
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		// Update Attempt
+		newAttempt.setEmotion(emotion);
+		
+		//save Attempt to DB
+		dbHelper.addAttempt(newAttempt);
+		
+		sendResult(String.valueOf(emoCodeInt) + "\n");
 		return true;
-	}
-	
-	
+	}	
 }
