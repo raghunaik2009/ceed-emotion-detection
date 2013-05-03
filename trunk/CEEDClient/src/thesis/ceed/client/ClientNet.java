@@ -14,7 +14,7 @@ import java.net.UnknownHostException;
 import android.util.Base64;
 
 public class ClientNet {
-	public static final String SERVER_IP = "192.168.1.2";
+	public static final String SERVER_IP = "192.168.173.1";
 	public static final int SERVER_PORT = 7010;
 	
 	static Socket clientSocket;
@@ -22,9 +22,19 @@ public class ClientNet {
 	//static DataOutputStream outToServer;
 	static OutputStreamWriter outToServer;
 	public static void connect() throws UnknownHostException, IOException {
-		clientSocket = new Socket(SERVER_IP, SERVER_PORT);
-		outToServer = new OutputStreamWriter(new DataOutputStream(clientSocket.getOutputStream()));
-		fromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+		Thread thread = new Thread(new Runnable(){
+		    @Override
+		    public void run() {
+		        try {
+		        	clientSocket = new Socket(SERVER_IP, SERVER_PORT);
+		    		outToServer = new OutputStreamWriter(new DataOutputStream(clientSocket.getOutputStream()));
+		    		fromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+		        } catch (Exception e) {
+		            e.printStackTrace();
+		        }
+		    }
+		});
+		thread.start();		
 	}
 	
 	public static void send(File file) throws IOException {

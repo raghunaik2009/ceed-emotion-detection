@@ -11,7 +11,7 @@ public class RecordingWav {
 	private static final int RECORDER_BPP = 16;//bit depth per sample
 	private static final String FILE_EXT = ".wav";
 	private static final String OUTPUT_FOLDER = "CEED";
-	private static final String TEMP_FILE = "ceed_temnp.raw";
+	private static final String TEMP_FILE = "ceed_temp.raw";
 	private static final int SAMPLE_RATE = 16000;
 	private static final int CHANNELS = AudioFormat.CHANNEL_IN_MONO;
 	private static final int AUDIO_ENCODING = AudioFormat.ENCODING_PCM_16BIT;

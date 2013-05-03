@@ -15,6 +15,7 @@ import java.net.Socket;
 import thesis.ceed.classifiers.CeedClassifier;
 import thesis.ceed.recognitionprocess.ClassifierSelection;
 import thesis.ceed.recognitionprocess.FeatureExtraction;
+import thesis.ceed.recognitionprocess.FeatureSelection;
 import weka.core.Instance;
 import weka.core.Instances;
 
@@ -66,15 +67,15 @@ public class ServerProcessThread extends Thread {
 	}
 	
 	private String receiveSound(String clientData){
-		//Pattern:  #IMEI##Time###base64Size####data
+		//Pattern:  #IMEI##Time###fileSize####data
 		int IMEIPos = clientData.indexOf("#") + 1;
 		int timePos = clientData.indexOf("##") + 2;//2 is the length of ##
-		int base64Pos = clientData.indexOf("###") + 3;//3 is the length of ###
+		int fileSizePos = clientData.indexOf("###") + 3;//3 is the length of ###
 		int dataPos = clientData.indexOf("####") + 4;//4 is the length of ####
 		//Get sound info from client data stream
-		clientIMEI = clientData.substring(IMEIPos, timePos);
-		recordTime = clientData.substring(timePos, dataPos); 
-		int base64Size = Integer.parseInt(clientData.substring(base64Pos, dataPos));
+		clientIMEI = clientData.substring(IMEIPos, timePos -2);
+		recordTime = clientData.substring(timePos, fileSizePos -3); 
+		int fileSize = Integer.parseInt(clientData.substring(fileSizePos, dataPos-4));
 		String soundData = clientData.substring(dataPos);
 		
 		//Create directory if not existed to each client using IMEI number
@@ -83,14 +84,14 @@ public class ServerProcessThread extends Thread {
 			newDir.mkdirs();
 		//Save sound file into corresponding client
 		File savedFile = new File(newDir.getAbsolutePath() + clientIMEI + "_" + recordTime +".wav");
-		byte[] temp = new byte[base64Size];
+		byte[] temp = new byte[fileSize];
 		//decode data back from String to byte[]
 		temp = Base64.decode(soundData);
 		
 		try {
 			FileOutputStream fos = new FileOutputStream(savedFile);
 			BufferedOutputStream bos = new BufferedOutputStream(fos);			
-			bos.write(temp, 0, base64Size);
+			bos.write(temp, 0, fileSize);
 			bos.flush();
 			bos.close();
 		} catch (FileNotFoundException e) {
@@ -126,7 +127,8 @@ public class ServerProcessThread extends Thread {
 			BufferedReader clsFileReader = new BufferedReader(fr);
 			int clsCode = Integer.parseInt(clsFileReader.readLine());
 			clsFileReader.close();
-			Double emoCode = CeedClassifier.classify(clsCode, null, false, instance);
+			Instances trainingData = new Instances(new BufferedReader(new FileReader(FeatureSelection.SELECTED_ARFF_PATH)));
+			Double emoCode = CeedClassifier.classify(clsCode, trainingData, false, instance);
 			emoCodeInt = emoCode.intValue();
 			switch (emoCodeInt) {
 			case 0:
