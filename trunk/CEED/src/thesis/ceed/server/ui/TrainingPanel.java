@@ -46,7 +46,7 @@ public class TrainingPanel extends JPanel implements ThreadCompleteListener {
 		btnOpenDbFolder.setToolTipText("Open database folder containing sounds to train");
 		fileChooser = new JFileChooser();
 		//fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
-		fileChooser.setCurrentDirectory(new File("D:\\Software\\EmoDB\\wav"));
+		fileChooser.setCurrentDirectory(new File("E:\\E2.Doing\\Samsung\\wav"));
 		fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 		btnOpenDbFolder.addActionListener(new ActionListener() {
 			@Override
