@@ -20,7 +20,7 @@ public class Server {
 		//clientList = new ArrayList<Socket>();
 		try {
 			//Step 1: Create a ServerSocket to listen from Client
-			ServerSocket serverSocket = new ServerSocket(7777);
+			ServerSocket serverSocket = new ServerSocket(getPort());
 			
 			while(true){
 			//Step 2: wait for connection from a client

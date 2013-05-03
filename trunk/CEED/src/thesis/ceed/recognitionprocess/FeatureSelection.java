@@ -44,7 +44,11 @@ public class FeatureSelection {
 			attset.SelectAttributes(data);		
 			int[] index = attset.selectedAttributes();
 			BufferedWriter attFileWriter = new BufferedWriter(new FileWriter(SELECTED_ATT_PATH));
-			attFileWriter.write(Utils.arrayToString(index));
+			for(int i = 0; i<index.length; i++){
+				attFileWriter.write(String.valueOf(index[i]));
+				attFileWriter.write("\n");
+			}
+			//attFileWriter.write(Utils.arrayToString(index));
 			attFileWriter.flush();
 			attFileWriter.close();
 			//System.out.println(Utils.arrayToString(index));
