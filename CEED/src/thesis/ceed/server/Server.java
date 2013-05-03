@@ -7,7 +7,7 @@ import java.util.Date;
 import thesis.ceed.server.ui.ServerWindow;
 
 public class Server {
-	private static final String IPADDRESS = "192.168.1.2";
+	private static final String IPADDRESS = "192.168.173.1";
 	private static final int PORT = 7010;
 	private static ServerSocket serverSocket = null;
 	//private ArrayList<Socket> clientList; 
@@ -29,7 +29,7 @@ public class Server {
 				try {
 					//Step 1: Create a ServerSocket to listen from Client
 					serverSocket = new ServerSocket(PORT);
-					
+					System.out.println("Server Socket Created");
 					while(true){
 					//Step 2: wait for connection from a client
 						//clientList.add(serverSocket.accept());
@@ -37,6 +37,7 @@ public class Server {
 						numberOfClient++;
 						if (!serverSocket.isClosed())
 							new ServerProcessThread(serverSocket.accept(), numberOfClient).start();
+							System.out.print("A client connected!");
 					}
 				} catch (IOException e) {
 					e.printStackTrace();
