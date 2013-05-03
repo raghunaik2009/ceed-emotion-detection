@@ -67,7 +67,7 @@ public class ServerProcessThread extends Thread {
 	}
 	
 	private String receiveSound(String clientData){
-		//Pattern:  #IMEI##Time###fileSize####data
+		//Pattern:  #IMEI##Time###fileSize####data\n
 		int IMEIPos = clientData.indexOf("#") + 1;
 		int timePos = clientData.indexOf("##") + 2;//2 is the length of ##
 		int fileSizePos = clientData.indexOf("###") + 3;//3 is the length of ###
@@ -122,12 +122,12 @@ public class ServerProcessThread extends Thread {
 		String emotion = null;
 		int emoCodeInt = 0;
 		try {
-			Instance instance = (new Instances(new BufferedReader(new FileReader(filteredArffFilePath)))).firstInstance();
 			FileReader fr = new  FileReader(ClassifierSelection.CLASSIFIER_PATH);
 			BufferedReader clsFileReader = new BufferedReader(fr);
 			int clsCode = Integer.parseInt(clsFileReader.readLine());
 			clsFileReader.close();
 			Instances trainingData = new Instances(new BufferedReader(new FileReader(FeatureSelection.SELECTED_ARFF_PATH)));
+			Instance instance = (new Instances(new BufferedReader(new FileReader(filteredArffFilePath)))).firstInstance();
 			Double emoCode = CeedClassifier.classify(clsCode, trainingData, false, instance);
 			emoCodeInt = emoCode.intValue();
 			switch (emoCodeInt) {
