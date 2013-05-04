@@ -59,7 +59,7 @@ public class ServerProcessThread extends Thread {
 		try {
 			String dataFromClient = inStream.readLine();
 			currentSoundPathOnServer = receiveSound(dataFromClient);
-			processSound();			
+			processSound(currentSoundPathOnServer);
 		} catch (IOException e) {	
 			e.printStackTrace();
 		}
@@ -113,9 +113,9 @@ public class ServerProcessThread extends Thread {
 		}		
 	}
 	
-	private Boolean processSound(){
-		Attempt newAttempt = new Attempt(clientIMEI, currentSoundPathOnServer, "", recordTime);
-		String filteredArffFilePath = FeatureExtraction.extractFeature(currentSoundPathOnServer);
+	private Boolean processSound(String filePath){
+		Attempt newAttempt = new Attempt(clientIMEI, filePath, "", recordTime);
+		String filteredArffFilePath = FeatureExtraction.extractFeature(filePath);
 		
 		// Classifier
 		String emotion = null;
@@ -126,6 +126,7 @@ public class ServerProcessThread extends Thread {
 			int clsCode = Integer.parseInt(clsFileReader.readLine());
 			clsFileReader.close();
 			Instances trainingData = new Instances(new BufferedReader(new FileReader(FeatureSelection.SELECTED_ARFF_PATH)));
+			trainingData.setClassIndex(trainingData.numAttributes() - 1);
 			Instance instance = (new Instances(new BufferedReader(new FileReader(filteredArffFilePath)))).firstInstance();
 			Double emoCode = CeedClassifier.classify(clsCode, trainingData, false, instance);
 			emoCodeInt = emoCode.intValue();

@@ -55,17 +55,7 @@ public class Server {
 	
 	public static void stopServer() {
 		try {
-			//Step 1: Create a ServerSocket to listen from Client
-			ServerSocket serverSocket = new ServerSocket(getPort());
-			
-			while(true){
-			//Step 2: wait for connection from a client
-				//clientList.add(serverSocket.accept());
-				//Socket newClientSocket = serverSocket.accept();
-				numberOfClient++;
-				new ServerProcessThread(serverSocket.accept(), numberOfClient).start();
-				serverSocket.close();
-			}
+			serverSocket.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
