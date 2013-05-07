@@ -103,7 +103,7 @@ public class ServerProcessThread extends Thread {
 	
 	private Boolean sendResult(String emoString){
 		String emoToClient = null;
-		emoToClient += emoString;
+		emoToClient = ""+emoString;
 		try {
 			outStream.write(emoToClient);
 			return true;
