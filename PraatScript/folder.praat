@@ -2,9 +2,10 @@ comma$ = ", "
 
 form 
 	text sourcePath
+	text lang
 endform
 
-inputToWekaFileName$ = "GER\GER-full.arff"
+inputToWekaFileName$ = lang$ + "\" + lang$ + "_full.arff"
 
 #xoa file cu
 filedelete 'inputToWekaFileName$'

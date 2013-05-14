@@ -12,7 +12,6 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import thesis.ceed.utils.*;
 
-
 public class ClientNet {
 	public static final String SERVER_IP = "192.168.137.1";
 	public static final int SERVER_PORT = 7010;
@@ -37,7 +36,7 @@ public class ClientNet {
 		}.start();
 	}
 	
-	public static void send(File file) throws IOException {
+	public static void send(File file, String lang) throws IOException {
 		int fileSize = (int)file.length();
 		
 		FileInputStream fis = new FileInputStream(file);
@@ -46,17 +45,16 @@ public class ClientNet {
 		byte[] data = new byte[fileSize];
 		bufferFileInputStream.read(data, 0, fileSize);
 		fis.close();
-		//fis.read(data);
-		//fis.close();
+
 		String encoded = Base64.encode(data);
 		String imei = CEEDClient.telephony.getDeviceId();
-		String time = String.valueOf(System.currentTimeMillis());
-		String toServer = "#" + imei + "##" + time + "###" + fileSize + "####" + encoded;
+		String time = file.getName();
+		time = time.substring(0, time.lastIndexOf(".wav"));
+		String toServer = lang + "#" + imei + "##" + time + "###" + fileSize + "####" + encoded;
 		outToServer.write(toServer);
 		outToServer.write(13);
 		outToServer.write(10);
 		outToServer.flush();
-		
 	}
 	
 	public static String receiveResult() {

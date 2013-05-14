@@ -2,15 +2,9 @@ package thesis.ceed.server.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
-import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
-
-import thesis.ceed.server.Server;
 
 public class ServerWindow extends JFrame {
 	
@@ -19,18 +13,18 @@ public class ServerWindow extends JFrame {
 	private JTabbedPane tabPane;
 	private TrainingPanel trnPanel;
 	private StatisticsPanel statPanel;
-	private APanel aPanel;
+	private XPanel xPanel;
 	
 	public ServerWindow(){
-		aPanel = new APanel();
+		xPanel = new XPanel();
 		trnPanel = new TrainingPanel();
 		statPanel = new StatisticsPanel();
 		
 		tabPane = new JTabbedPane();
-		tabPane.addTab("A", null, aPanel, "A Panel");
+		tabPane.addTab("X", null, xPanel, "X Panel");
 		tabPane.addTab("Training", null, trnPanel, "Training Panel");
 		tabPane.addTab("Statistics", null, statPanel, "Statistics Panel");
-		tabPane.setSelectedIndex(0);
+		tabPane.setSelectedIndex(1);
 		
 		Container container = getContentPane();
 		container.setLayout(new BorderLayout());
@@ -41,25 +35,6 @@ public class ServerWindow extends JFrame {
 		pack();
 		setVisible(true);
 	}
-	
-	class APanel extends JPanel {
-		private static final long serialVersionUID = -4905106830251591630L;
-		
-		private JButton btnStop;
-		
-		public APanel() {
-			btnStop = new JButton("Stop server");
-			btnStop.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent arg0) {
-					Server.stopServer();
-				}
-			});
-			setLayout(new BorderLayout());
-			add(btnStop, BorderLayout.CENTER);
-		}
-	}
-	
 	/*public static void main(String[] argv) {
 		ServerDbHelper dbHelper = new ServerDbHelper();
 		dbHelper.createDatabase();

@@ -68,14 +68,13 @@ import weka.classifiers.trees.REPTree;
 import weka.classifiers.trees.RandomForest;
 import weka.classifiers.trees.RandomTree;
 import weka.classifiers.trees.SimpleCart;
-import weka.core.Instance;
 import weka.core.Instances;
 
 /*
  * return correct percentage if is training, predicted class if not.
  */
 public class CeedClassifier {
-	public static Double classify(int classifierCode, Instances trainingData, boolean isTraining, Instance instanceToClassify) {
+	public static Classifier select(int classifierCode) {
 		Classifier classifier;
 		
 		// 7 <-> 57; 21 <-> 58
@@ -281,16 +280,18 @@ public class CeedClassifier {
 			classifier = new ZeroR();
 			break;
 		}
+		
+		return classifier;
+	}
+	
+	public static Double evaluate(int classifierCode, Instances trainingData) {
+		Classifier classifier = select(classifierCode);
 
 		try {
 			classifier.buildClassifier(trainingData);
-			if (isTraining) {
-				Evaluation eval = new Evaluation(trainingData);
-				eval.crossValidateModel(classifier, trainingData, 10, new Random(1));
-				return eval.pctCorrect();
-			} else {
-				return classifier.classifyInstance(instanceToClassify);
-			}
+			Evaluation eval = new Evaluation(trainingData);
+			eval.crossValidateModel(classifier, trainingData, 10, new Random(1));
+			return eval.pctCorrect();
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
