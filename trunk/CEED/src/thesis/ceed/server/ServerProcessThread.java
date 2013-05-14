@@ -12,29 +12,29 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 
-import thesis.ceed.classifiers.CeedClassifier;
-import thesis.ceed.recognitionprocess.ClassifierSelection;
 import thesis.ceed.recognitionprocess.FeatureExtraction;
-import thesis.ceed.recognitionprocess.FeatureSelection;
+import thesis.ceed.utils.Base64;
 import weka.core.Instance;
 import weka.core.Instances;
-import thesis.ceed.utils.*;
 
 public class ServerProcessThread extends Thread {
 	//socket to interact with client
 	private Socket socket;
+	// Language
+	private String lang;
 	//IMEI number of client
 	private String clientIMEI;
 	private String recordTime;
+	@SuppressWarnings("unused")
 	private int clientIndex;
 	private String currentSoundPathOnServer = null;
 	private BufferedReader inStream;
 	private OutputStreamWriter outStream;
 	private ServerDbHelper dbHelper;
 	
-	public ServerProcessThread(Socket socket, int clientNumber){
+	public ServerProcessThread(Socket socket) { //, int clientNumber){
 		this.socket = socket;
-		this.clientIndex = clientNumber;
+		//this.clientIndex = clientNumber;
 		dbHelper = new ServerDbHelper();
 	}
 	
@@ -66,19 +66,20 @@ public class ServerProcessThread extends Thread {
 	}
 	
 	private String receiveSound(String clientData){
-		//Pattern:  #IMEI##Time###fileSize####data\n
+		//Pattern:  Lang#IMEI##Time###fileSize####data\n
 		int IMEIPos = clientData.indexOf("#") + 1;
 		int timePos = clientData.indexOf("##") + 2;//2 is the length of ##
 		int fileSizePos = clientData.indexOf("###") + 3;//3 is the length of ###
 		int dataPos = clientData.indexOf("####") + 4;//4 is the length of ####
 		//Get sound info from client data stream
+		lang = clientData.substring(0, IMEIPos - 1);
 		clientIMEI = clientData.substring(IMEIPos, timePos -2);
 		recordTime = clientData.substring(timePos, fileSizePos -3); 
 		int fileSize = Integer.parseInt(clientData.substring(fileSizePos, dataPos-4));
 		String soundData = clientData.substring(dataPos);
 		
 		//Create directory if not existed to each client using IMEI number
-		File newDir = new File("D:\\CEED\\" + "GER\\Sound\\");
+		File newDir = new File("D:\\CEED\\" + lang + "\\Sound\\");
 		if(!newDir.exists())
 			newDir.mkdirs();
 		//Save sound file into corresponding client
@@ -101,34 +102,20 @@ public class ServerProcessThread extends Thread {
 		return savedFile.getAbsolutePath();
 	}
 	
-	private Boolean sendResult(String emoString){
-		String emoToClient = null;
-		emoToClient = ""+emoString;
-		try {
-			outStream.write(emoToClient);
-			return true;
-		} catch (IOException e) {
-			e.printStackTrace();
-			return false;
-		}		
-	}
-	
 	private Boolean processSound(String filePath){
 		Attempt newAttempt = new Attempt(clientIMEI, filePath, "", recordTime);
-		String filteredArffFilePath = FeatureExtraction.extractFeature(filePath);
+		String filteredArffFilePath = FeatureExtraction.extractFeature(filePath, lang);
 		
 		// Classifier
 		String emotion = null;
 		int emoCodeInt = 0;
 		try {
-			FileReader fr = new  FileReader(ClassifierSelection.CLASSIFIER_PATH);
-			BufferedReader clsFileReader = new BufferedReader(fr);
-			int clsCode = Integer.parseInt(clsFileReader.readLine());
-			clsFileReader.close();
-			Instances trainingData = new Instances(new BufferedReader(new FileReader(FeatureSelection.SELECTED_ARFF_PATH)));
-			trainingData.setClassIndex(trainingData.numAttributes() - 1);
 			Instance instance = (new Instances(new BufferedReader(new FileReader(filteredArffFilePath)))).firstInstance();
-			Double emoCode = CeedClassifier.classify(clsCode, trainingData, false, instance);
+			Double emoCode = 0.0;
+			if (lang.equals("GER"))
+				emoCode = Server.clsGer.classifyInstance(instance);
+			else if (lang.equals("VIE"))
+				emoCode = Server.clsVie.classifyInstance(instance);
 			emoCodeInt = emoCode.intValue();
 			switch (emoCodeInt) {
 			case 0:
@@ -157,6 +144,8 @@ public class ServerProcessThread extends Thread {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 		
 		// Update Attempt
@@ -167,5 +156,15 @@ public class ServerProcessThread extends Thread {
 		
 		sendResult(String.valueOf(emoCodeInt) + "\n");
 		return true;
-	}	
+	}
+	
+	private Boolean sendResult(String emoString){
+		try {
+			outStream.write(emoString);
+			return true;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		}		
+	}
 }

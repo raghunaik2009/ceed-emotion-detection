@@ -8,102 +8,83 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import thesis.ceed.server.Server;
+import thesis.ceed.server.ui.TrainingPanel;
 import weka.core.Instances;
 
 public class FeatureExtraction {
 	private static String command;
-	private static String PRAAT_PATH = "D:\\CEED\\praatcon.exe";
-	private static String SCRIPT_FOR_FILE_PATH = "D:\\CEED\\file.praat";
-	private static String SCRIPT_FOR_FOLDER_PATH = "D:\\CEED\\folder.praat";
-	public static String FULL_ARFF_PATH = "D:\\CEED\\GER\\GER-full.arff";	
+	private static final String PRAAT_PATH = Server.WORKING_DIR + "praatcon.exe";
+	private static final String SCRIPT_FOR_FILE_PATH = Server.WORKING_DIR + "file.praat";
+	private static final String SCRIPT_FOR_FOLDER_PATH = Server.WORKING_DIR + "folder.praat";
+	//private static String SCRIPT_FOR_FOLDER_PATH = Server.WORKING_DIR + "folder-";
+	private static final String FULL_ARFF_EXTENSION = "_full" + Server.ARFF_EXTENSION;
+	private static final String FILTERED_ARFF_EXTENSION = "_filtered" + Server.ARFF_EXTENSION;
 	
-	public static String extractFeature(String path){
-		
+	public static String FULL_ARFF_PATH_GER = Server.WORKING_DIR + "GER\\GER" + FULL_ARFF_EXTENSION;
+	public static String FULL_ARFF_PATH_VIE = Server.WORKING_DIR + "VIE\\VIE" + FULL_ARFF_EXTENSION;
+	
+	public static String extractFeature(String path, String lang) {		
 		//File instance for testing whether receiving a file or folder
 		File testPath = new File(path);	
 		
 		try {
 			//command = "D:\\praatcon.exe D:\\Eg_FeatureExtraction.praat \""+path+"\\ " + isTraining;
-			if(testPath.isDirectory()){
-				command = PRAAT_PATH + " " + SCRIPT_FOR_FOLDER_PATH+ " \""+path+"\\";
+			if (testPath.isDirectory()) {
+				//command = PRAAT_PATH + " " + SCRIPT_FOR_FOLDER_PATH + lang + PRAAT_EXTENSION + " \"" + path + "\\";
+				command = PRAAT_PATH + " " + SCRIPT_FOR_FOLDER_PATH + " \"" + path + "\\ " + lang;
 				Process p = Runtime.getRuntime().exec(command);
-				//p.getOutputStream()
 				p.waitFor();
-				return FULL_ARFF_PATH;
-			}
-			if(testPath.isFile()){
+				
+				TrainingPanel.outText("Feature Extraction with " + lang + " speech database completed.\n");
+				return (Server.WORKING_DIR + lang + "\\" + lang + FULL_ARFF_EXTENSION);
+			} else if (testPath.isFile()) {
 				int indexOfDot = path.indexOf('.');
-				String fullArffFilePath = path.substring(0, indexOfDot) + ".arff";
-				command = PRAAT_PATH + " " + SCRIPT_FOR_FILE_PATH+ " \""+path;
+				String fullArffFilePath = path.substring(0, indexOfDot) + Server.ARFF_EXTENSION;
+				command = PRAAT_PATH + " " + SCRIPT_FOR_FILE_PATH + " \"" + path;
 				Process p = Runtime.getRuntime().exec(command);
-				//p.getOutputStream()
 				p.waitFor();
 				
 				//Reconstruct list of selected attr of this database from .att file
-				FileReader fr = new  FileReader(FeatureSelection.SELECTED_ATT_PATH);
+				String selectedAttFilePath = null;
+				if (lang.equals("GER"))
+					selectedAttFilePath = FeatureSelection.SELECTED_ATT_PATH_GER;
+				else if (lang.equals("VIE"))
+					selectedAttFilePath = FeatureSelection.SELECTED_ATT_PATH_VIE;
+				FileReader fr = new FileReader(selectedAttFilePath);
 				BufferedReader attFileReader = new BufferedReader(fr);
-				ArrayList<Integer> index = new ArrayList<Integer>();
-				/*//int numberOfAtt = 0;
-				while(attFileReader.readLine() != null){
-					int temp = Integer.parseInt(attFileReader.readLine());
-					//numberOfAtt++;
-					index.add(temp);
+				ArrayList<Integer> indexes = new ArrayList<Integer>();
+				String line = attFileReader.readLine();
+				while(line != null){
+					int temp = Integer.parseInt(line);
+					indexes.add(temp);
+					line = attFileReader.readLine();
 				}
-				attFileReader.close();*/
-				
-				
-				index.add(14);
-				index.add(15);
-				index.add(20);
-				index.add(22);
-				index.add(27);
-				index.add(29);
-				index.add(30);
-				index.add(32);
-				index.add(33);
-				index.add(34);
-				index.add(36);
-				index.add(43);
-				index.add(46);
-				index.add(58);
-				index.add(59);
-				index.add(67);
-				index.add(68);
-				index.add(71);
-				index.add(74);
-				index.add(77);
-				index.add(79);
-				index.add(82);
-				index.add(87);
-				index.add(89);
-				index.add(93);
-				index.add(94);
-				index.add(97);
-				index.add(99);
-				index.add(102);
+				attFileReader.close();
 				
 				//filter full attr. file with newly created array of selected attr.
-				Instances instance = new Instances(new BufferedReader(new FileReader(fullArffFilePath)));
-				for(int i = instance.numAttributes() - 2; i >=0 ; i --){
-					if(!index.contains(Integer.valueOf(i)))
-						instance.deleteAttributeAt(i);
+				Instances fullInstances = new Instances(new BufferedReader(new FileReader(fullArffFilePath)));
+				for (int i = fullInstances.numAttributes() - 2; i >= 0; i--) {
+					if (!indexes.contains(Integer.valueOf(i)))
+						fullInstances.deleteAttributeAt(i);
 				}
 				
-				String filteredArffFilePath = path.substring(0, indexOfDot) +"_filtered.arff";
+				String filteredArffFilePath = path.substring(0, indexOfDot) + FILTERED_ARFF_EXTENSION;
 				BufferedWriter writer = new BufferedWriter(new FileWriter(filteredArffFilePath));
-				writer.write(instance.toString());
+				writer.write(fullInstances.toString());
 				writer.flush();
 				writer.close();	
 				
+				TrainingPanel.outText("Feature Extraction with speech file completed.\n");
 				return filteredArffFilePath;
 			}
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
+		} catch (IOException e) {
 			e.printStackTrace();
+			TrainingPanel.outText("Feature Extraction: " + e.getMessage() + "\n");
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			TrainingPanel.outText("Feature Extraction: " + e.getMessage() + "\n");
 		}
-		return "Error while extracting sound features";
+		return null;
 	}
 }

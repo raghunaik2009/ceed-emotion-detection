@@ -2,14 +2,10 @@ package thesis.ceed.client;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.UnknownHostException;
 
 import android.app.Activity;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.telephony.TelephonyManager;
 import android.view.Menu;
 import android.view.View;
@@ -45,6 +41,7 @@ public class CEEDClient extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_ceedclient);
 		telephony = (TelephonyManager)getSystemService(TELEPHONY_SERVICE);
+		ClientNet.connect();
 		
 		mImgViewRecord = (ImageView)findViewById(R.id.imgviewRecord);
 		mImgViewStop = (ImageView)findViewById(R.id.imgviewStop);
@@ -99,8 +96,8 @@ public class CEEDClient extends Activity {
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
 				try {					
-					ClientNet.connect();
-					ClientNet.send(new File(wavRecorder.getFileNameSaved()));
+					//ClientNet.send(new File(wavRecorder.getFileNameSaved()));
+					ClientNet.send(new File(Environment.getExternalStorageDirectory() + "//CEED//F.wav"), "GER");
 					Thread listenForResult = new Thread(){
 						@Override
 						public void run() {
