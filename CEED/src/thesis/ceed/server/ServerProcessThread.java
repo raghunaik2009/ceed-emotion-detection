@@ -9,7 +9,6 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.net.Socket;
 
 import thesis.ceed.recognitionprocess.FeatureExtraction;
@@ -29,7 +28,7 @@ public class ServerProcessThread extends Thread {
 	private int clientIndex;
 	private String currentSoundPathOnServer = null;
 	private BufferedReader inStream;
-	private OutputStreamWriter outStream;
+	private DataOutputStream outStream;
 	private ServerDbHelper dbHelper;
 	
 	public ServerProcessThread(Socket socket) { //, int clientNumber){
@@ -49,8 +48,8 @@ public class ServerProcessThread extends Thread {
 		try {			
 			//Use bufferedReader to make use of its readLine(): String method because we use String analysis as protocol
 			inStream = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-			outStream = new OutputStreamWriter(new DataOutputStream(socket.getOutputStream()));
-		} catch (IOException e) {	
+			outStream = new DataOutputStream(socket.getOutputStream());
+		} catch (IOException e) {
 			e.printStackTrace();
 		}		
 	}
@@ -160,7 +159,7 @@ public class ServerProcessThread extends Thread {
 	
 	private Boolean sendResult(String emoString){
 		try {
-			outStream.write(emoString);
+			outStream.writeBytes(emoString);
 			return true;
 		} catch (IOException e) {
 			e.printStackTrace();

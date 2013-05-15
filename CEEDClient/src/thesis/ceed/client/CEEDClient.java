@@ -62,7 +62,6 @@ public class CEEDClient extends Activity {
 		mImgViewPlay.setEnabled(false);
 		
 		mImgViewRecord.setOnClickListener(new OnClickListener() {
-			
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
@@ -77,7 +76,6 @@ public class CEEDClient extends Activity {
 		});
 		
 		mImgViewStop.setOnClickListener(new OnClickListener() {
-			
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
@@ -91,61 +89,27 @@ public class CEEDClient extends Activity {
 		});
 		
 		mBtnSend.setOnClickListener(new OnClickListener() {
-			
 			@Override
 			public void onClick(View v) {
-				// TODO Auto-generated method stub
 				try {					
 					//ClientNet.send(new File(wavRecorder.getFileNameSaved()));
-					ClientNet.send(new File(Environment.getExternalStorageDirectory() + "//CEED//F.wav"), "GER");
-					Thread listenForResult = new Thread(){
+					ClientNet.send(new File(Environment.getExternalStorageDirectory() + "//CEED//1367916681975.wav"), "GER");
+					new Thread() {
 						@Override
 						public void run() {
 							String emotion = ClientNet.receiveResult();
-							final int emotionCode = Integer.parseInt(emotion);
-							runOnUiThread(new Runnable() {						
-								@Override
-								public void run() {
-									// TODO Auto-generated method stub							
-									switch (emotionCode) {
-									case 0:
-										mImgViewEmotion.setImageResource(R.drawable.angry);
-										mTxtViewEmotion.setText("Anger");
-										break;
-									case 1:
-										mImgViewEmotion.setImageResource(R.drawable.boredom);
-										mTxtViewEmotion.setText("Boredom");
-										break;
-									case 2:
-										mImgViewEmotion.setImageResource(R.drawable.disgust);
-										mTxtViewEmotion.setText("Disgust");
-										break;
-									case 3:
-										mImgViewEmotion.setImageResource(R.drawable.fear);
-										mTxtViewEmotion.setText("Fear");
-										break;
-									case 4:
-										mImgViewEmotion.setImageResource(R.drawable.happy);
-										mTxtViewEmotion.setText("Happy");
-										break;
-									case 5:
-										mImgViewEmotion.setImageResource(R.drawable.sad);
-										mTxtViewEmotion.setText("Sad");
-										break;
-									case 6:
-										mImgViewEmotion.setImageResource(R.drawable.neutral);
-										mTxtViewEmotion.setText("Neutral");
-										break;
-									default:
-										break;
+							if (emotion != null) {
+								final int emotionCode = Integer.parseInt(emotion);
+								runOnUiThread(new Runnable() {						
+									@Override
+									public void run() {
+										displayResult(emotionCode);
 									}
-								}
-							});					
-							// TODO Auto-generated method stub
-							super.run();
-						}				
-					};//end of new Thread
-					listenForResult.start();
+								});					
+								super.run();
+							}
+						}
+					}.start();
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -153,6 +117,41 @@ public class CEEDClient extends Activity {
 			}
 		});	
 		
+	}
+	
+	private void displayResult(int emotionCode) {
+		switch (emotionCode) {
+		case 0:
+			mImgViewEmotion.setImageResource(R.drawable.angry);
+			mTxtViewEmotion.setText("Anger");
+			break;
+		case 1:
+			mImgViewEmotion.setImageResource(R.drawable.boredom);
+			mTxtViewEmotion.setText("Boredom");
+			break;
+		case 2:
+			mImgViewEmotion.setImageResource(R.drawable.disgust);
+			mTxtViewEmotion.setText("Disgust");
+			break;
+		case 3:
+			mImgViewEmotion.setImageResource(R.drawable.fear);
+			mTxtViewEmotion.setText("Fear");
+			break;
+		case 4:
+			mImgViewEmotion.setImageResource(R.drawable.happy);
+			mTxtViewEmotion.setText("Happy");
+			break;
+		case 5:
+			mImgViewEmotion.setImageResource(R.drawable.sad);
+			mTxtViewEmotion.setText("Sad");
+			break;
+		case 6:
+			mImgViewEmotion.setImageResource(R.drawable.neutral);
+			mTxtViewEmotion.setText("Neutral");
+			break;
+		default:
+			break;
+		}
 	}
 
 	@Override

@@ -1,6 +1,7 @@
 package thesis.ceed.server.ui;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -106,14 +107,16 @@ public class StatisticsPanel extends JPanel {
 	    tableData = new String[][] { {"", "", "", ""} };
 	    tblAttempts = new JTable(new AttemptModel());
 	    tblAttempts.setShowGrid(true);
-	    tblAttempts.setFillsViewportHeight(true);
+	    Dimension viewport = tblAttempts.getPreferredScrollableViewportSize();
+	    viewport.setSize(viewport.getWidth(), viewport.getHeight() / 2);
+	    tblAttempts.setPreferredScrollableViewportSize(viewport);
 	    tblAttempts.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 	    tblAttempts.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 	    lowerScrollPane = new JScrollPane(tblAttempts);
 	    
 	    setLayout(new BorderLayout());
 		add(upperPanel, BorderLayout.NORTH);
-		add(lowerScrollPane, BorderLayout.SOUTH);
+		add(lowerScrollPane, BorderLayout.CENTER);
 	}
 	
 	private void prepareComboBoxData() {

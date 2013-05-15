@@ -7,10 +7,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import thesis.ceed.utils.*;
+
+import thesis.ceed.utils.Base64;
 
 public class ClientNet {
 	public static final String SERVER_IP = "192.168.137.1";
@@ -18,14 +18,14 @@ public class ClientNet {
 	
 	static Socket clientSocket;
 	static BufferedReader fromServer;
-	//static DataOutputStream outToServer;
-	static OutputStreamWriter outToServer;
+	static DataOutputStream outToServer;
+	//static OutputStreamWriter outToServer;
 	public static void connect() {
 		new Thread() {
 			public void run() {
 				try {
 					clientSocket = new Socket(SERVER_IP, SERVER_PORT);
-					outToServer = new OutputStreamWriter(new DataOutputStream(clientSocket.getOutputStream()));
+					outToServer = new DataOutputStream(clientSocket.getOutputStream());
 					fromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 				} catch (UnknownHostException e) {
 					e.printStackTrace();
@@ -50,10 +50,8 @@ public class ClientNet {
 		String imei = CEEDClient.telephony.getDeviceId();
 		String time = file.getName();
 		time = time.substring(0, time.lastIndexOf(".wav"));
-		String toServer = lang + "#" + imei + "##" + time + "###" + fileSize + "####" + encoded;
-		outToServer.write(toServer);
-		outToServer.write(13);
-		outToServer.write(10);
+		String toServer = lang + "#" + imei + "##" + time + "###" + fileSize + "####" + encoded + "\n";
+		outToServer.writeBytes(toServer);
 		outToServer.flush();
 	}
 	

@@ -16,7 +16,6 @@ import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 import thesis.ceed.recognitionprocess.ClassifierSelection;
@@ -37,14 +36,9 @@ public class TrainingPanel extends JPanel implements ThreadCompleteListener {
 	private JButton btnOpenDbFolder, btnOpenTestFile, btnTrain, btnTest;
 	private JFileChooser fcDatabase, fcFile;
 	private JComboBox<Object> cbLanguage;
-	private static JTextArea taResult;
 	private JPanel pnlTrain, pnlTest;
-	private NotifyingThread threadFeatureExtraction, threadFeatureSelection, threadClassifierSelection;
+	private NotifyingThread threadTraining;
 	private Object[] languages = new Object[] {"GER", "VIE"};
-	
-	public static void outText(String text) {
-		taResult.append(text);
-	}
 	
 	private void setEnableTrain(boolean enable) {
 		btnTrain.setEnabled(enable);
@@ -62,13 +56,13 @@ public class TrainingPanel extends JPanel implements ThreadCompleteListener {
 		lblDbAddr = new JLabel("Database folder path: ");
 		
 		txtDbAddr = new JTextField();
-		txtDbAddr.setText("E:\\E2.Doing\\Samsung\\wav");
+		txtDbAddr.setText("E:\\E2.Doing\\Samsung\\wav2");
 		
 		btnOpenDbFolder = new JButton("Open Database");
 		btnOpenDbFolder.setToolTipText("Open database folder containing sounds to train");
 		fcDatabase = new JFileChooser();
 		//fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
-		fcDatabase.setCurrentDirectory(new File("E:\\E2.Doing\\Samsung\\wav"));
+		fcDatabase.setCurrentDirectory(new File("E:\\E2.Doing\\Samsung\\wav2"));
 		fcDatabase.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 		btnOpenDbFolder.addActionListener(new ActionListener() {
 			@Override
@@ -86,31 +80,21 @@ public class TrainingPanel extends JPanel implements ThreadCompleteListener {
 				File dbFolder = new File(txtDbAddr.getText());
 				if (dbFolder.isDirectory()) {
 					setEnableTrain(false);
-					threadFeatureExtraction = new NotifyingThread() {
+					//FeatureExtraction.extractFeature(txtDbAddr.getText(), (String) cbLanguage.getSelectedItem());
+					threadTraining = new NotifyingThread() {
 						public void doRun() {
 							FeatureExtraction.extractFeature(txtDbAddr.getText(), (String) cbLanguage.getSelectedItem());
-						}
-					};
-					threadFeatureSelection = new NotifyingThread() {
-						public void doRun() {
-							if ( ((String) cbLanguage.getSelectedItem()).equals("GER") )
+							if ( ((String) cbLanguage.getSelectedItem()).equals("GER") ) {
 								FeatureSelection.selectFeature(FeatureExtraction.FULL_ARFF_PATH_GER, "GER");
-							else if ( ((String) cbLanguage.getSelectedItem()).equals("VIE") )
-								FeatureSelection.selectFeature(FeatureExtraction.FULL_ARFF_PATH_VIE, "VIE");
-						}
-					};
-					threadClassifierSelection = new NotifyingThread() {
-						public void doRun() {
-							if ( ((String) cbLanguage.getSelectedItem()).equals("GER") )
 								ClassifierSelection.selectClassifier(FeatureSelection.SELECTED_ARFF_PATH_GER, "GER");
-							else if ( ((String) cbLanguage.getSelectedItem()).equals("VIE") )
+							} else if ( ((String) cbLanguage.getSelectedItem()).equals("VIE") ) {
+								FeatureSelection.selectFeature(FeatureExtraction.FULL_ARFF_PATH_VIE, "VIE");
 								ClassifierSelection.selectClassifier(FeatureSelection.SELECTED_ARFF_PATH_VIE, "VIE");
+							}
 						}
 					};
-					threadFeatureExtraction.addListener(TrainingPanel.this);
-					threadFeatureSelection.addListener(TrainingPanel.this);
-					threadClassifierSelection.addListener(TrainingPanel.this);
-					threadFeatureExtraction.start();
+					threadTraining.addListener(TrainingPanel.this);
+					threadTraining.start();
 				}
 			}
 		});
@@ -127,7 +111,7 @@ public class TrainingPanel extends JPanel implements ThreadCompleteListener {
 		pnlTrainControl.add(btnTrain);
 		pnlTrain = new JPanel(new BorderLayout());
 		pnlTrain.add(pnlDbAddr, BorderLayout.NORTH);
-		pnlTrain.add(pnlTrainControl, BorderLayout.SOUTH);
+		pnlTrain.add(pnlTrainControl, BorderLayout.CENTER);
 		
 		// Test Panel - pnlTest
 		lblTestFileAddr = new JLabel("File path: ");
@@ -166,19 +150,12 @@ public class TrainingPanel extends JPanel implements ThreadCompleteListener {
 		pnlTestControl.add(btnTest);
 		pnlTest = new JPanel(new BorderLayout());
 		pnlTest.add(pnlTestFileAddr, BorderLayout.NORTH);
-		pnlTest.add(pnlTestControl, BorderLayout.SOUTH);
-		
-		// Result Panel - pnlResult
-		taResult = new JTextArea();
+		pnlTest.add(pnlTestControl, BorderLayout.CENTER);
 		
 		// Training Panel
-		JPanel panels = new JPanel(new BorderLayout());
-		panels.add(pnlTrain, BorderLayout.NORTH);
-		panels.add(pnlTest, BorderLayout.CENTER);
-		
 		setLayout(new BorderLayout());
-		add(panels, BorderLayout.NORTH);
-		add(taResult, BorderLayout.CENTER);
+		add(pnlTrain, BorderLayout.NORTH);
+		add(pnlTest, BorderLayout.CENTER);
 	}
 	
 	private Boolean processSound(String filePath, String lang) {
@@ -219,16 +196,16 @@ public class TrainingPanel extends JPanel implements ThreadCompleteListener {
 				break;
 			}
 			
-			outText("Test: " + filePath + " - " + emotion + "\n");
+			ServerWindow.log("Test: " + filePath + " - " + emotion + "\n");
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
-			outText(e.getMessage() + "\n");
+			ServerWindow.log(e.getMessage() + "\n");
 		} catch (IOException e) {
 			e.printStackTrace();
-			outText(e.getMessage() + "\n");
+			ServerWindow.log(e.getMessage() + "\n");
 		} catch (Exception e) {
 			e.printStackTrace();
-			outText(e.getMessage() + "\n");
+			ServerWindow.log(e.getMessage() + "\n");
 		}
 		
 		return true;
@@ -236,12 +213,7 @@ public class TrainingPanel extends JPanel implements ThreadCompleteListener {
 
 	@Override
 	public void notifyOfThreadComplete(Thread thread) {
-		if (thread.getName().equals(threadFeatureExtraction.getName())) {
-			threadFeatureSelection.start();
-		} else if (thread.getName().equals(threadFeatureSelection.getName())) {
-			threadClassifierSelection.start();
-		} else if (thread.getName().equals(threadClassifierSelection.getName())) {
+		if (thread.getName().equals(threadTraining.getName()))
 			setEnableTrain(true);
-		}
 	}
 }
