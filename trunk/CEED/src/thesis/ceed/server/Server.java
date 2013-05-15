@@ -1,9 +1,17 @@
 package thesis.ceed.server;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.util.Date;
 
@@ -11,7 +19,6 @@ import thesis.ceed.classifiers.CeedClassifier;
 import thesis.ceed.recognitionprocess.ClassifierSelection;
 import thesis.ceed.recognitionprocess.FeatureSelection;
 import thesis.ceed.server.ui.ServerWindow;
-import thesis.ceed.server.ui.XPanel;
 import thesis.ceed.utils.NotifyingThread;
 import thesis.ceed.utils.ThreadCompleteListener;
 import weka.classifiers.Classifier;
@@ -55,7 +62,7 @@ public class Server implements ThreadCompleteListener {
 					// Step 1: Create a ServerSocket to listen from Client
 					Server.serverSocket = new ServerSocket(Server.getPort());
 					//System.out.println("Server Socket Created");
-					XPanel.outText("Server socket created.\n");
+					ServerWindow.log("Server socket created.\n");
 					while (true) {
 						// Step 2: wait for connection from a client
 						// clientList.add(serverSocket.accept());
@@ -65,19 +72,19 @@ public class Server implements ThreadCompleteListener {
 							// new ServerProcessThread(Server.serverSocket.accept(), numberOfClient).start();
 							new ServerProcessThread(Server.serverSocket.accept()).start();
 							//System.out.print("A client connected!");
-							XPanel.outText("A client connected!\n");
+							ServerWindow.log("A client connected!\n");
 						}
 					}
 				} catch (IOException e) {
 					e.printStackTrace();
-					XPanel.outText("Create Socket: " + e.getMessage() + "\n");
+					ServerWindow.log("Create Socket: " + e.getMessage() + "\n");
 				} finally {
 					try {
 						if (Server.serverSocket != null)
 							Server.serverSocket.close();
 					} catch (IOException e) {
 						e.printStackTrace();
-						XPanel.outText("Create Socket: " + e.getMessage() + "\n");
+						ServerWindow.log("Create Socket: " + e.getMessage() + "\n");
 					}
 				}
 			}
@@ -96,52 +103,82 @@ public class Server implements ThreadCompleteListener {
 	}
 
 	private void createCls(String lang) {
-		String selectedArff = null, selectedCls = null;
+		String selectedArffFilePath = null, selectedClsFilePath = null;
+		ObjectInput inputCls = null;
+		ObjectOutput outputCls = null;
 
 		if (lang.equals("GER")) {
-			selectedArff = FeatureSelection.SELECTED_ARFF_PATH_GER;
-			selectedCls = ClassifierSelection.CLASSIFIER_PATH_GER;
+			selectedArffFilePath = FeatureSelection.SELECTED_ARFF_PATH_GER;
+			selectedClsFilePath = ClassifierSelection.CLASSIFIER_PATH_GER;
 		} else if (lang.equals("VIE")) {
-			selectedArff = FeatureSelection.SELECTED_ARFF_PATH_VIE;
-			selectedCls = ClassifierSelection.CLASSIFIER_PATH_VIE;
+			selectedArffFilePath = FeatureSelection.SELECTED_ARFF_PATH_VIE;
+			selectedClsFilePath = ClassifierSelection.CLASSIFIER_PATH_VIE;
 		}
-
+		
 		try {
-			Instances trainingData = new Instances(new BufferedReader(
-					new FileReader(selectedArff)));
-			trainingData.setClassIndex(trainingData.numAttributes() - 1);
-			FileReader fr = new FileReader(selectedCls);
-			BufferedReader clsFileReader = new BufferedReader(fr);
-			int clsCode = Integer.parseInt(clsFileReader.readLine());
-			clsFileReader.close();
-			if (lang.equals("GER")) {
-				Server.clsGer = CeedClassifier.select(clsCode);
-				Server.clsGer.buildClassifier(trainingData);
-				XPanel.outText("GER classifier created.\n");
-			} else if (lang.equals("VIE")) {
-				Server.clsVie = CeedClassifier.select(clsCode);
-				Server.clsVie.buildClassifier(trainingData);
-				XPanel.outText("VIE classifier created.\n");
+			inputCls = new ObjectInputStream(new BufferedInputStream(new FileInputStream(selectedClsFilePath)));
+			try {
+				if (lang.equals("GER"))
+					clsGer = (Classifier) inputCls.readObject();
+				else if (lang.equals("VIE"))
+					clsVie = (Classifier) inputCls.readObject();
+			} finally {
+				inputCls.close();
 			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
-			XPanel.outText(e.getMessage() + "\n");
-		} catch (IOException e) {
-			e.printStackTrace();
-			XPanel.outText(e.getMessage() + "\n");
+			ServerWindow.log(e.getMessage() + "\n");
+		} catch (IOException | ClassNotFoundException e) {
+			BufferedReader clsFileReader = null;
+			Instances trainingData = null;
+			int clsCode = 100;
+			
+			try {
+				trainingData = new Instances(new BufferedReader(new FileReader(selectedArffFilePath)));
+				trainingData.setClassIndex(trainingData.numAttributes() - 1);
+				clsFileReader = new BufferedReader(new FileReader(selectedClsFilePath));
+				clsCode = Integer.parseInt(clsFileReader.readLine());
+				clsFileReader.close();
+				
+				outputCls = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(selectedClsFilePath)));
+				try {
+					if (lang.equals("GER")) {
+						clsGer = CeedClassifier.select(clsCode);
+						clsGer.buildClassifier(trainingData);
+						outputCls.writeObject(clsGer);
+						ServerWindow.log("GER classifier created.\n");
+					} else if (lang.equals("VIE")) {
+						clsVie = CeedClassifier.select(clsCode);
+						clsVie.buildClassifier(trainingData);
+						outputCls.writeObject(clsVie);
+						ServerWindow.log("VIE classifier created.\n");
+					}
+				} finally {
+					outputCls.close();
+				}
+			} catch (FileNotFoundException e1) {
+				e.printStackTrace();
+				ServerWindow.log(e1.getMessage() + "\n");
+			} catch (IOException e1) {
+				e.printStackTrace();
+				ServerWindow.log(e1.getMessage() + "\n");
+			} catch (Exception e1) {
+				e.printStackTrace();
+				ServerWindow.log(e1.getMessage() + "\n");
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			XPanel.outText(e.getMessage() + "\n");
+			ServerWindow.log(e.getMessage() + "\n");
 		}
 	}
 
 	public static void stopServer() {
 		try {
 			serverSocket.close();
-			XPanel.outText("Close Socket done.\n");
+			ServerWindow.log("Close Socket done.\n");
 		} catch (IOException e) {
 			e.printStackTrace();
-			XPanel.outText("Close Socket: " + e.getMessage() + "\n");
+			ServerWindow.log("Close Socket: " + e.getMessage() + "\n");
 		}
 	}
 
@@ -168,5 +205,4 @@ public class Server implements ThreadCompleteListener {
 				|| (thread.getName().equals(threadCreateVie.getName()) && !threadCreateGer.isAlive()) )
 			threadCreateSocket.start();
 	}
-
 }

@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import thesis.ceed.server.Server;
-import thesis.ceed.server.ui.TrainingPanel;
+import thesis.ceed.server.ui.ServerWindow;
 import weka.core.Instances;
 
 public class FeatureExtraction {
@@ -36,7 +36,7 @@ public class FeatureExtraction {
 				Process p = Runtime.getRuntime().exec(command);
 				p.waitFor();
 				
-				TrainingPanel.outText("Feature Extraction with " + lang + " speech database completed.\n");
+				ServerWindow.log("Feature Extraction with " + lang + " speech database completed.\n");
 				return (Server.WORKING_DIR + lang + "\\" + lang + FULL_ARFF_EXTENSION);
 			} else if (testPath.isFile()) {
 				int indexOfDot = path.indexOf('.');
@@ -75,15 +75,15 @@ public class FeatureExtraction {
 				writer.flush();
 				writer.close();	
 				
-				TrainingPanel.outText("Feature Extraction with speech file completed.\n");
+				ServerWindow.log("Feature Extraction with speech file completed.\n");
 				return filteredArffFilePath;
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
-			TrainingPanel.outText("Feature Extraction: " + e.getMessage() + "\n");
+			ServerWindow.log("Feature Extraction: " + e.getMessage() + "\n");
 		} catch (InterruptedException e) {
 			e.printStackTrace();
-			TrainingPanel.outText("Feature Extraction: " + e.getMessage() + "\n");
+			ServerWindow.log("Feature Extraction: " + e.getMessage() + "\n");
 		}
 		return null;
 	}

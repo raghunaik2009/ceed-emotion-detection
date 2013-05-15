@@ -4,7 +4,9 @@ import java.awt.BorderLayout;
 import java.awt.Container;
 
 import javax.swing.JFrame;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
 
 public class ServerWindow extends JFrame {
 	
@@ -14,6 +16,12 @@ public class ServerWindow extends JFrame {
 	private TrainingPanel trnPanel;
 	private StatisticsPanel statPanel;
 	private XPanel xPanel;
+	private static JTextArea taResult;
+	private JScrollPane spResult;
+	
+	public static void log(String text) {
+		taResult.append(text);
+	}
 	
 	public ServerWindow(){
 		xPanel = new XPanel();
@@ -26,9 +34,13 @@ public class ServerWindow extends JFrame {
 		tabPane.addTab("Statistics", null, statPanel, "Statistics Panel");
 		tabPane.setSelectedIndex(1);
 		
+		taResult = new JTextArea();
+		spResult = new JScrollPane(taResult);
+		
 		Container container = getContentPane();
 		container.setLayout(new BorderLayout());
-		container.add(tabPane, BorderLayout.CENTER);
+		container.add(tabPane, BorderLayout.NORTH);
+		container.add(spResult, BorderLayout.CENTER);
 		setTitle("CEED Server");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		//Rearrange components to fit the Frame

@@ -10,7 +10,7 @@ import java.util.TreeMap;
 
 import thesis.ceed.classifiers.CeedClassifier;
 import thesis.ceed.server.Server;
-import thesis.ceed.server.ui.TrainingPanel;
+import thesis.ceed.server.ui.ServerWindow;
 import weka.core.Instances;
 
 public class ClassifierSelection {
@@ -26,13 +26,13 @@ public class ClassifierSelection {
 				Double pctCorrect = CeedClassifier.evaluate(i, trainingData);
 				if (pctCorrect != null) {
 					classifyingResult.put(pctCorrect, i);
-					TrainingPanel.outText("Classifier Selection with language " + lang + ": " + CeedClassifier.select(i).getClass().getSimpleName()
+					ServerWindow.log("Classifier Selection with language " + lang + ": " + CeedClassifier.select(i).getClass().getSimpleName()
 							+ " - " + pctCorrect.toString() + "%\n");
 				}
 			}
 			
 			Integer selectedClsIndex = classifyingResult.lastEntry().getValue();
-			TrainingPanel.outText("Classifier Selection with language " + lang + ": "
+			ServerWindow.log("Classifier Selection with language " + lang + ": "
 					+ CeedClassifier.select(selectedClsIndex).getClass().getSimpleName() + " selected.\n");
 			String clsPath = Server.WORKING_DIR + lang + "\\" + lang + Server.CLS_EXTENSION;
 			BufferedWriter writer = new BufferedWriter(new FileWriter(clsPath));
@@ -40,15 +40,15 @@ public class ClassifierSelection {
 			writer.flush();
 			writer.close();
 			
-			TrainingPanel.outText("Classifier Selection with language " + lang + " completed.\n");
+			ServerWindow.log("Classifier Selection with language " + lang + " completed.\n");
 			return true;
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
-			TrainingPanel.outText(e.getMessage());
+			ServerWindow.log(e.getMessage());
 			return false;
 		} catch (IOException e) {
 			e.printStackTrace();
-			TrainingPanel.outText(e.getMessage());
+			ServerWindow.log(e.getMessage());
 			return false;
 		}
 	}

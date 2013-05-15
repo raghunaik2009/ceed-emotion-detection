@@ -8,7 +8,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import thesis.ceed.server.Server;
-import thesis.ceed.server.ui.TrainingPanel;
+import thesis.ceed.server.ui.ServerWindow;
 import weka.attributeSelection.AttributeSelection;
 import weka.attributeSelection.BestFirst;
 import weka.attributeSelection.CfsSubsetEval;
@@ -42,7 +42,7 @@ public class FeatureSelection {
 			writer.write(filteredData.toString());
 			writer.flush();
 			writer.close();
-			TrainingPanel.outText("Feature Selection: Arff file with selected features of the language " + lang + " created.\n");
+			ServerWindow.log("Feature Selection: Arff file with selected features of the language " + lang + " created.\n");
 			
 			AttributeSelection attset = new AttributeSelection();
 			attset.setEvaluator(eval);
@@ -56,17 +56,17 @@ public class FeatureSelection {
 			}
 			attFileWriter.flush();
 			attFileWriter.close();
-			TrainingPanel.outText("Feature Selection: File containing list of indexes of selected features of the language " + lang + " created.\n"
+			ServerWindow.log("Feature Selection: File containing list of indexes of selected features of the language " + lang + " created.\n"
 								+ "Feature Selection completed.\n");
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
-			TrainingPanel.outText(e.getMessage());
+			ServerWindow.log(e.getMessage());
 		} catch (IOException e) {
 			e.printStackTrace();
-			TrainingPanel.outText(e.getMessage());
+			ServerWindow.log(e.getMessage());
 		} catch (Exception e) {
 			e.printStackTrace();
-			TrainingPanel.outText(e.getMessage());
+			ServerWindow.log(e.getMessage());
 		}
 		if (filteredData.numAttributes() != 0) return true;
 		else return false;
