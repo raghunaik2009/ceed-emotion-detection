@@ -284,9 +284,7 @@ public class CeedClassifier {
 		return classifier;
 	}
 	
-	public static Double evaluate(int classifierCode, Instances trainingData) {
-		Classifier classifier = select(classifierCode);
-
+	public static Double evaluate(Classifier classifier, Instances trainingData) {
 		try {
 			classifier.buildClassifier(trainingData);
 			Evaluation eval = new Evaluation(trainingData);
