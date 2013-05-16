@@ -10,5 +10,13 @@
     <string name="btnViewHistory">View History</string>
     <string name="txtviewStatus">Current Status</string>
     <string name="txtviewFileName">File Name</string>
+    <string name="imgbtnRecordCD">Record image button</string>
+    <string name="imgbtnStopCD">Stop image button</string>
+    <string name="imgbtnPlayCD">Play image button</string>
+    <string name="imgbtnPauseCD">Pause image button</string>
+    <string name="imgbtnSDcardCD">SD card image button</string>
+    <string name="txtviewLanguage">Select a language</string>
+    <string name="rdbtnGerman">German(GER)</string>
+    <string name="rdbtnVietnamese">Vietnamese(VIE)</string>
 
 </resources>

@@ -26,31 +26,45 @@ public final class R {
         public static final int disgust=0x7f020002;
         public static final int fear=0x7f020003;
         public static final int happy=0x7f020004;
-        public static final int ic_launcher=0x7f020005;
-        public static final int ic_play=0x7f020006;
-        public static final int ic_record=0x7f020007;
-        public static final int ic_sdcard=0x7f020008;
-        public static final int ic_stop=0x7f020009;
-        public static final int neutral=0x7f02000a;
-        public static final int sad=0x7f02000b;
+        public static final int ic_bkg=0x7f020005;
+        public static final int ic_bkg2=0x7f020006;
+        public static final int ic_bkg3=0x7f020007;
+        public static final int ic_launcher=0x7f020008;
+        public static final int ic_pause=0x7f020009;
+        public static final int ic_play=0x7f02000a;
+        public static final int ic_play2=0x7f02000b;
+        public static final int ic_questionmark=0x7f02000c;
+        public static final int ic_record=0x7f02000d;
+        public static final int ic_record2=0x7f02000e;
+        public static final int ic_sdcard=0x7f02000f;
+        public static final int ic_sdcard2=0x7f020010;
+        public static final int ic_stop=0x7f020011;
+        public static final int ic_stop2=0x7f020012;
+        public static final int neutral=0x7f020013;
+        public static final int sad=0x7f020014;
     }
     public static final class id {
-        public static final int action_settings=0x7f08000f;
-        public static final int btnSave=0x7f08000d;
-        public static final int btnSend=0x7f080009;
-        public static final int btnViewHistory=0x7f08000e;
-        public static final int imgviewEmotion=0x7f08000b;
-        public static final int imgviewPlay=0x7f080004;
-        public static final int imgviewRecord=0x7f080002;
-        public static final int imgviewSDcard=0x7f080005;
-        public static final int imgviewStop=0x7f080003;
-        public static final int llayout1=0x7f080000;
-        public static final int llayout12=0x7f080006;
-        public static final int relativelayout1=0x7f08000a;
-        public static final int rlayout11=0x7f080001;
-        public static final int txtviewEmotion=0x7f08000c;
-        public static final int txtviewFileName=0x7f080008;
-        public static final int txtviewStatus=0x7f080007;
+        public static final int action_settings=0x7f080014;
+        public static final int btnSave=0x7f080012;
+        public static final int btnSend=0x7f08000e;
+        public static final int btnViewHistory=0x7f080013;
+        public static final int imgbtnPause=0x7f080009;
+        public static final int imgbtnPlay=0x7f080008;
+        public static final int imgbtnRecord=0x7f080006;
+        public static final int imgbtnSDcard=0x7f08000a;
+        public static final int imgbtnStop=0x7f080007;
+        public static final int imgviewEmotion=0x7f080010;
+        public static final int llayout11=0x7f080005;
+        public static final int llayout12=0x7f08000b;
+        public static final int rdbtnGerman=0x7f080002;
+        public static final int rdbtnVietnamese=0x7f080003;
+        public static final int rlayout1=0x7f080004;
+        public static final int rlayout2=0x7f08000f;
+        public static final int rlayout3=0x7f080000;
+        public static final int txtviewEmotion=0x7f080011;
+        public static final int txtviewFileName=0x7f08000d;
+        public static final int txtviewLanguage=0x7f080001;
+        public static final int txtviewStatus=0x7f08000c;
     }
     public static final class layout {
         public static final int activity_ceedclient=0x7f030000;
@@ -65,8 +79,16 @@ public final class R {
         public static final int btnSend=0x7f050003;
         public static final int btnViewHistory=0x7f050006;
         public static final int hello_world=0x7f050002;
+        public static final int imgbtnPauseCD=0x7f05000c;
+        public static final int imgbtnPlayCD=0x7f05000b;
+        public static final int imgbtnRecordCD=0x7f050009;
+        public static final int imgbtnSDcardCD=0x7f05000d;
+        public static final int imgbtnStopCD=0x7f05000a;
+        public static final int rdbtnGerman=0x7f05000f;
+        public static final int rdbtnVietnamese=0x7f050010;
         public static final int txtviewEmotion=0x7f050004;
         public static final int txtviewFileName=0x7f050008;
+        public static final int txtviewLanguage=0x7f05000e;
         public static final int txtviewStatus=0x7f050007;
     }
     public static final class style {

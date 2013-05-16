@@ -7,17 +7,20 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
 import thesis.ceed.utils.Base64;
 
 public class ClientNet {
-	public static final String SERVER_IP = "192.168.137.1";
+	public static final String SERVER_IP = "192.168.5.102";
 	public static final int SERVER_PORT = 7010;
 	
-	static Socket clientSocket;
-	static BufferedReader fromServer;
+	public static Socket clientSocket;
+	public static BufferedReader fromServer;
+	//static DataOutputStream outToServer;
+	//public static OutputStreamWriter outToServer;
 	static DataOutputStream outToServer;
 	//static OutputStreamWriter outToServer;
 	public static void connect() {
