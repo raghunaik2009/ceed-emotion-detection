@@ -1,28 +1,18 @@
 package thesis.ceed.server;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutput;
-import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.util.Date;
 
-import thesis.ceed.classifiers.CeedClassifier;
 import thesis.ceed.recognitionprocess.ClassifierSelection;
-import thesis.ceed.recognitionprocess.FeatureSelection;
 import thesis.ceed.server.ui.ServerWindow;
 import thesis.ceed.utils.NotifyingThread;
 import thesis.ceed.utils.ThreadCompleteListener;
 import weka.classifiers.Classifier;
-import weka.core.Instances;
 
 public class Server implements ThreadCompleteListener {
 	private static final int PORT = 7010;
@@ -103,68 +93,26 @@ public class Server implements ThreadCompleteListener {
 	}
 
 	private void createCls(String lang) {
-		String selectedArffFilePath = null, selectedClsFilePath = null;
+		String selectedClsFilePath = null;
 		ObjectInput inputCls = null;
-		ObjectOutput outputCls = null;
 
-		if (lang.equals("GER")) {
-			selectedArffFilePath = FeatureSelection.SELECTED_ARFF_PATH_GER;
+		if (lang.equals("GER"))
 			selectedClsFilePath = ClassifierSelection.CLASSIFIER_PATH_GER;
-		} else if (lang.equals("VIE")) {
-			selectedArffFilePath = FeatureSelection.SELECTED_ARFF_PATH_VIE;
+		else if (lang.equals("VIE"))
 			selectedClsFilePath = ClassifierSelection.CLASSIFIER_PATH_VIE;
-		}
 		
 		try {
 			inputCls = new ObjectInputStream(new BufferedInputStream(new FileInputStream(selectedClsFilePath)));
 			try {
-				if (lang.equals("GER"))
+				if (lang.equals("GER")) {
 					clsGer = (Classifier) inputCls.readObject();
-				else if (lang.equals("VIE"))
+					ServerWindow.log("GER classifier created.\n");
+				} else if (lang.equals("VIE")) {
 					clsVie = (Classifier) inputCls.readObject();
+					ServerWindow.log("VIE classifier created.\n");
+				}
 			} finally {
 				inputCls.close();
-			}
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			ServerWindow.log(e.getMessage() + "\n");
-		} catch (IOException | ClassNotFoundException e) {
-			BufferedReader clsFileReader = null;
-			Instances trainingData = null;
-			int clsCode = 100;
-			
-			try {
-				trainingData = new Instances(new BufferedReader(new FileReader(selectedArffFilePath)));
-				trainingData.setClassIndex(trainingData.numAttributes() - 1);
-				clsFileReader = new BufferedReader(new FileReader(selectedClsFilePath));
-				clsCode = Integer.parseInt(clsFileReader.readLine());
-				clsFileReader.close();
-				
-				outputCls = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(selectedClsFilePath)));
-				try {
-					if (lang.equals("GER")) {
-						clsGer = CeedClassifier.select(clsCode);
-						clsGer.buildClassifier(trainingData);
-						outputCls.writeObject(clsGer);
-						ServerWindow.log("GER classifier created.\n");
-					} else if (lang.equals("VIE")) {
-						clsVie = CeedClassifier.select(clsCode);
-						clsVie.buildClassifier(trainingData);
-						outputCls.writeObject(clsVie);
-						ServerWindow.log("VIE classifier created.\n");
-					}
-				} finally {
-					outputCls.close();
-				}
-			} catch (FileNotFoundException e1) {
-				e.printStackTrace();
-				ServerWindow.log(e1.getMessage() + "\n");
-			} catch (IOException e1) {
-				e.printStackTrace();
-				ServerWindow.log(e1.getMessage() + "\n");
-			} catch (Exception e1) {
-				e.printStackTrace();
-				ServerWindow.log(e1.getMessage() + "\n");
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

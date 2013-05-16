@@ -12,6 +12,7 @@ import java.io.InputStreamReader;
 import java.net.Socket;
 
 import thesis.ceed.recognitionprocess.FeatureExtraction;
+import thesis.ceed.server.ui.ServerWindow;
 import thesis.ceed.utils.Base64;
 import weka.core.Instance;
 import weka.core.Instances;
@@ -93,6 +94,7 @@ public class ServerProcessThread extends Thread {
 			bos.write(temp, 0, fileSize);
 			bos.flush();
 			bos.close();
+			ServerWindow.log("File received from client: " + savedFile.getName() + ".\n");
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -109,7 +111,9 @@ public class ServerProcessThread extends Thread {
 		String emotion = null;
 		int emoCodeInt = 0;
 		try {
-			Instance instance = (new Instances(new BufferedReader(new FileReader(filteredArffFilePath)))).firstInstance();
+			Instances instances = new Instances(new BufferedReader(new FileReader(filteredArffFilePath)));
+			instances.setClassIndex(instances.numAttributes() - 1);
+			Instance instance = instances.firstInstance();
 			Double emoCode = 0.0;
 			if (lang.equals("GER"))
 				emoCode = Server.clsGer.classifyInstance(instance);

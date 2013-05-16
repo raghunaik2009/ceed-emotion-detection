@@ -1,16 +1,18 @@
 package thesis.ceed.recognitionprocess;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.TreeMap;
 
 import thesis.ceed.classifiers.CeedClassifier;
 import thesis.ceed.server.Server;
 import thesis.ceed.server.ui.ServerWindow;
+import weka.classifiers.Classifier;
 import weka.core.Instances;
 
 public class ClassifierSelection {
@@ -18,27 +20,30 @@ public class ClassifierSelection {
 	public static final String CLASSIFIER_PATH_VIE = Server.WORKING_DIR + "VIE\\VIE" + Server.CLS_EXTENSION;
 	
 	public static boolean selectClassifier(String selectedAttArffFilePath, String lang) {
-		TreeMap<Double, Integer> classifyingResult = new TreeMap<Double, Integer>();
+		TreeMap<Double, Classifier> classifyingResult = new TreeMap<Double, Classifier>();
 		try {
 			Instances trainingData = new Instances(new BufferedReader(new FileReader(selectedAttArffFilePath)));
 			trainingData.setClassIndex(trainingData.numAttributes() - 1);
 			for (int i = 0; i < 63; i++) {
-				Double pctCorrect = CeedClassifier.evaluate(i, trainingData);
+				Classifier cls = CeedClassifier.select(i);
+				Double pctCorrect = CeedClassifier.evaluate(cls, trainingData);
 				if (pctCorrect != null) {
-					classifyingResult.put(pctCorrect, i);
-					ServerWindow.log("Classifier Selection with language " + lang + ": " + CeedClassifier.select(i).getClass().getSimpleName()
+					classifyingResult.put(pctCorrect, cls);
+					ServerWindow.log("Classifier Selection with language " + lang + ": " + cls.getClass().getSimpleName()
 							+ " - " + pctCorrect.toString() + "%\n");
 				}
 			}
 			
-			Integer selectedClsIndex = classifyingResult.lastEntry().getValue();
+			Classifier selectedCls = classifyingResult.lastEntry().getValue();
 			ServerWindow.log("Classifier Selection with language " + lang + ": "
-					+ CeedClassifier.select(selectedClsIndex).getClass().getSimpleName() + " selected.\n");
+					+ selectedCls.getClass().getSimpleName() + " selected.\n");
 			String clsPath = Server.WORKING_DIR + lang + "\\" + lang + Server.CLS_EXTENSION;
-			BufferedWriter writer = new BufferedWriter(new FileWriter(clsPath));
-			writer.write(selectedClsIndex.toString() + "\n");
-			writer.flush();
-			writer.close();
+			ObjectOutputStream outputCls = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(clsPath)));
+			try {
+				outputCls.writeObject(selectedCls);
+			} finally {
+				outputCls.close();
+			}
 			
 			ServerWindow.log("Classifier Selection with language " + lang + " completed.\n");
 			return true;
