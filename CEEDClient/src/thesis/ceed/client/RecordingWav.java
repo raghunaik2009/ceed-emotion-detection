@@ -114,8 +114,7 @@ public class RecordingWav {
 		if(null!= mAudioRecorder){
 			isRecording = false;
 			mAudioRecorder.stop();
-			mAudioRecorder.release();
-			
+			mAudioRecorder.release();			
 			mAudioRecorder = null;
 			recordThread = null;
 		}
@@ -259,7 +258,6 @@ public class RecordingWav {
 		mWaveFileHeader[43] = (byte)((totalAudioDataLen >> 24) & 0xff);
 		
 		try {
-			
 			fos.write(mWaveFileHeader, 0, 44);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
