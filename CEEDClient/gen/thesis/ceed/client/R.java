@@ -44,10 +44,11 @@ public final class R {
         public static final int sad=0x7f020014;
     }
     public static final class id {
-        public static final int action_settings=0x7f080014;
+        public static final int action_settings=0x7f080016;
         public static final int btnSave=0x7f080012;
         public static final int btnSend=0x7f08000e;
         public static final int btnViewHistory=0x7f080013;
+        public static final int edttextServerIP=0x7f080015;
         public static final int imgbtnPause=0x7f080009;
         public static final int imgbtnPlay=0x7f080008;
         public static final int imgbtnRecord=0x7f080006;
@@ -64,10 +65,12 @@ public final class R {
         public static final int txtviewEmotion=0x7f080011;
         public static final int txtviewFileName=0x7f08000d;
         public static final int txtviewLanguage=0x7f080001;
+        public static final int txtviewServerIP=0x7f080014;
         public static final int txtviewStatus=0x7f08000c;
     }
     public static final class layout {
         public static final int activity_ceedclient=0x7f030000;
+        public static final int serverip_setting=0x7f030001;
     }
     public static final class menu {
         public static final int ceedclient=0x7f070000;
@@ -78,17 +81,21 @@ public final class R {
         public static final int btnSave=0x7f050005;
         public static final int btnSend=0x7f050003;
         public static final int btnViewHistory=0x7f050006;
+        public static final int cancel=0x7f050014;
+        public static final int default_serverip=0x7f050012;
         public static final int hello_world=0x7f050002;
         public static final int imgbtnPauseCD=0x7f05000c;
         public static final int imgbtnPlayCD=0x7f05000b;
         public static final int imgbtnRecordCD=0x7f050009;
         public static final int imgbtnSDcardCD=0x7f05000d;
         public static final int imgbtnStopCD=0x7f05000a;
+        public static final int ok=0x7f050013;
         public static final int rdbtnGerman=0x7f05000f;
         public static final int rdbtnVietnamese=0x7f050010;
         public static final int txtviewEmotion=0x7f050004;
         public static final int txtviewFileName=0x7f050008;
         public static final int txtviewLanguage=0x7f05000e;
+        public static final int txtviewServerIP=0x7f050011;
         public static final int txtviewStatus=0x7f050007;
     }
     public static final class style {

@@ -2,21 +2,34 @@ package thesis.ceed.client;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.regex.Matcher;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.os.Bundle;
 import android.os.Environment;
 import android.telephony.TelephonyManager;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Patterns;
+import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class CEEDClient extends Activity {
 	
@@ -24,6 +37,7 @@ public class CEEDClient extends Activity {
 	private static final String RECORD_STOPPED_STATUS = "Recording Stopped";
 	private static final String PLAYING_STATUS = "Playing Recorded Sound";
 	private static final String PAUSE_STATUS = "Paused Playing Recored Sound";
+	private static final String STOPPED_STATUS = "Stopped Playing Recorded Sound";
 	private ImageButton mImgBtnRecord;
 	private ImageButton mImgBtnStop;
 	private ImageButton mImgBtnPlay;
@@ -42,9 +56,11 @@ public class CEEDClient extends Activity {
 	static TelephonyManager telephony;
 	static MediaPlayer mMediaPlayer;
 	static int currentPos;
+	static Context context;
 	@Override 
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		context = this;
 		setContentView(R.layout.activity_ceedclient);
 		telephony = (TelephonyManager)getSystemService(TELEPHONY_SERVICE);
 		ClientNet.connect();
@@ -145,6 +161,7 @@ public class CEEDClient extends Activity {
 						mMediaPlayer.seekTo(currentPos);
 					}
 					mMediaPlayer.start();
+					mTxtViewStatus.setText(PLAYING_STATUS);
 					mImgBtnPause.setEnabled(true);
 					mImgBtnPlay.setEnabled(false);
 					mMediaPlayer.setOnCompletionListener(new OnCompletionListener() {
@@ -152,7 +169,8 @@ public class CEEDClient extends Activity {
 						@Override
 						public void onCompletion(MediaPlayer mp) {
 							// TODO Auto-generated method stub
-							currentPos = 0;							
+							currentPos = 0;					
+							mTxtViewStatus.setText(STOPPED_STATUS);
 							mImgBtnPlay.setEnabled(true);
 							mImgBtnPause.setEnabled(false);
 						}
@@ -179,6 +197,7 @@ public class CEEDClient extends Activity {
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
 				mMediaPlayer.pause();
+				mTxtViewStatus.setText(PAUSE_STATUS);
 				currentPos = mMediaPlayer.getCurrentPosition();
 				mImgBtnPlay.setEnabled(true);
 				mImgBtnPause.setEnabled(false);
@@ -253,11 +272,74 @@ public class CEEDClient extends Activity {
 		}
 	}
 
+	
+	@Override
+	protected void onStop() {
+		// TODO Auto-generated method stub
+		mMediaPlayer.release();
+		mMediaPlayer = null;
+		super.onStop();
+	}
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.ceedclient, menu);
 		return true;
 	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		// TODO Auto-generated method stub
+		switch (item.getItemId()){
+		case R.id.action_settings:
+			{
+				DialogFragment newDialog = new SetServerIPDialog();
+				newDialog.show(getFragmentManager(), "Server IP Setting");
+			}
+		}
+		return super.onOptionsItemSelected(item);
+	}
+	
+	public static class SetServerIPDialog extends DialogFragment{
+				
+		final View view = View.inflate(context, R.layout.serverip_setting, null);
+		final EditText mEdtTextServerIP = (EditText)view.findViewById(R.id.edttextServerIP);
+		@Override
+		public Dialog onCreateDialog(Bundle savedInstanceState) {
+			// TODO Auto-generated method stub
+			AlertDialog.Builder builder = new AlertDialog.Builder(context);
+			builder.setView(view);
+			mEdtTextServerIP.setText(ClientNet.SERVER_IP);
+			builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					// TODO Auto-generated method stub
+					String validateString = mEdtTextServerIP.getText().toString();
+					Matcher ipMatcher = Patterns.IP_ADDRESS.matcher(validateString);
+					if(!ipMatcher.matches()){				
+						Toast.makeText(getActivity(), "Wrong IP Address pattern, Server IP Address was not updated.", Toast.LENGTH_SHORT).show();				
+					}else
+					{						
+						ClientNet.SERVER_IP = mEdtTextServerIP.getText().toString();
+						Toast.makeText(getActivity(), "Server IP Address succesfully updated.", Toast.LENGTH_SHORT).show();
+					}
+					 
+				}
+			});
+			builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					// TODO Auto-generated method stub
+					SetServerIPDialog.this.getDialog().cancel();
+				}
+			});
+			return builder.create();
+		}
+
+	}
+	
 
 }
