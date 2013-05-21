@@ -40,40 +40,47 @@ public class FeatureExtraction {
 				return (Server.WORKING_DIR + lang + "\\" + lang + FULL_ARFF_EXTENSION);
 			} else if (testPath.isFile()) {
 				int indexOfDot = path.indexOf('.');
-				String fullArffFilePath = path.substring(0, indexOfDot) + Server.ARFF_EXTENSION;
-				command = PRAAT_PATH + " " + SCRIPT_FOR_FILE_PATH + " \"" + path;
-				Process p = Runtime.getRuntime().exec(command);
-				p.waitFor();
-				
-				//Reconstruct list of selected attr of this database from .att file
-				String selectedAttFilePath = null;
-				if (lang.equals("GER"))
-					selectedAttFilePath = FeatureSelection.SELECTED_ATT_PATH_GER;
-				else if (lang.equals("VIE"))
-					selectedAttFilePath = FeatureSelection.SELECTED_ATT_PATH_VIE;
-				FileReader fr = new FileReader(selectedAttFilePath);
-				BufferedReader attFileReader = new BufferedReader(fr);
-				ArrayList<Integer> indexes = new ArrayList<Integer>();
-				String line = attFileReader.readLine();
-				while(line != null){
-					int temp = Integer.parseInt(line);
-					indexes.add(temp);
-					line = attFileReader.readLine();
-				}
-				attFileReader.close();
-				
-				//filter full attr. file with newly created array of selected attr.
-				Instances fullInstances = new Instances(new BufferedReader(new FileReader(fullArffFilePath)));
-				for (int i = fullInstances.numAttributes() - 2; i >= 0; i--) {
-					if (!indexes.contains(Integer.valueOf(i)))
-						fullInstances.deleteAttributeAt(i);
-				}
-				
 				String filteredArffFilePath = path.substring(0, indexOfDot) + FILTERED_ARFF_EXTENSION;
-				BufferedWriter writer = new BufferedWriter(new FileWriter(filteredArffFilePath));
-				writer.write(fullInstances.toString());
-				writer.flush();
-				writer.close();	
+				String langPraatPath = Server.WORKING_DIR + lang + "\\" + lang + Server.PRAAT_EXTENSION;
+				if (new File(langPraatPath).exists()) {
+					command = PRAAT_PATH + " " + langPraatPath + " \"" + path;
+					Process p = Runtime.getRuntime().exec(command);
+					p.waitFor();
+				} else {
+					String fullArffFilePath = path.substring(0, indexOfDot) + Server.ARFF_EXTENSION;
+					command = PRAAT_PATH + " " + SCRIPT_FOR_FILE_PATH + " \"" + path;
+					Process p = Runtime.getRuntime().exec(command);
+					p.waitFor();
+					
+					//Reconstruct list of selected attr of this database from .att file
+					String selectedAttFilePath = null;
+					if (lang.equals("GER"))
+						selectedAttFilePath = FeatureSelection.SELECTED_ATT_PATH_GER;
+					else if (lang.equals("VIE"))
+						selectedAttFilePath = FeatureSelection.SELECTED_ATT_PATH_VIE;
+					FileReader fr = new FileReader(selectedAttFilePath);
+					BufferedReader attFileReader = new BufferedReader(fr);
+					ArrayList<Integer> indexes = new ArrayList<Integer>();
+					String line = attFileReader.readLine();
+					while(line != null){
+						int temp = Integer.parseInt(line);
+						indexes.add(temp);
+						line = attFileReader.readLine();
+					}
+					attFileReader.close();
+					
+					//filter full attr. file with newly created array of selected attr.
+					Instances fullInstances = new Instances(new BufferedReader(new FileReader(fullArffFilePath)));
+					for (int i = fullInstances.numAttributes() - 2; i >= 0; i--) {
+						if (!indexes.contains(Integer.valueOf(i)))
+							fullInstances.deleteAttributeAt(i);
+					}
+					
+					BufferedWriter writer = new BufferedWriter(new FileWriter(filteredArffFilePath));
+					writer.write(fullInstances.toString());
+					writer.flush();
+					writer.close();
+				}
 				
 				ServerWindow.log("Feature Extraction with speech file completed.\n");
 				return filteredArffFilePath;
