@@ -72,29 +72,62 @@ procedure featureExtractor .fileName$
 	select Sound 'objectName$'
 	To Pitch (SPINET)... 0.005 0.04 70 5000 250 500 15
 	pitchSpiStdev = Get standard deviation... 0 0 Hertz
+	if pitchSpiStdev = undefined
+		fileappend 'inputToWekaFileName$' ?'comma$'
+	else
+		fileappend 'inputToWekaFileName$' 'pitchSpiStdev''comma$'
+	endif
 	pitchSpiSlopeWoOctaveJmps = Get slope without octave jumps
-	fileappend 'inputToWekaFileName$' 'pitchSpiStdev''comma$''pitchSpiSlopeWoOctaveJmps''comma$'
+	if pitchSpiSlopeWoOctaveJmps = undefined
+		fileappend 'inputToWekaFileName$' ?'comma$'
+	else
+		fileappend 'inputToWekaFileName$' 'pitchSpiSlopeWoOctaveJmps''comma$'
+	endif
 	
 	select Sound 'objectName$'
 	To Pitch (shs)... 0.01 50 15 1250 15 0.84 600 48
 	pitchShsMin = Get minimum... 0 0 Hertz Parabolic
 	pitchShsQuantile = Get quantile... 0 0 0.5 Hertz
 	pitchShsMean = Get mean... 0 0 Hertz
+	fileappend 'inputToWekaFileName$' 'pitchShsMin''comma$''pitchShsQuantile''comma$''pitchShsMean''comma$'
 	pitchShsStdev = Get standard deviation... 0 0 Hertz
+	if pitchShsStdev = undefined
+		fileappend 'inputToWekaFileName$' ?'comma$'
+	else
+		fileappend 'inputToWekaFileName$' 'pitchShsStdev''comma$'
+	endif
 	pitchShsSlopeWoOctaveJmps = Get slope without octave jumps
-	fileappend 'inputToWekaFileName$' 'pitchShsMin''comma$''pitchShsQuantile''comma$''pitchShsMean''comma$''pitchShsStdev''comma$''pitchShsSlopeWoOctaveJmps''comma$'
+	if pitchShsSlopeWoOctaveJmps = undefined
+		fileappend 'inputToWekaFileName$' ?'comma$'
+	else
+		fileappend 'inputToWekaFileName$' 'pitchShsSlopeWoOctaveJmps''comma$'
+	endif
 	
 	select Sound 'objectName$'
 	To PointProcess (periodic, cc)... 75 600
 	ppccStdevPeriod = Get stdev period... 0 0 0.0001 0.02 1.3
+	fileappend 'inputToWekaFileName$' 'ppccStdevPeriod''comma$'
 	ppccJitterRap = Get jitter (rap)... 0 0 0.0001 0.02 1.3
-	fileappend 'inputToWekaFileName$' 'ppccStdevPeriod''comma$''ppccJitterRap''comma$'
+	if ppccJitterRap = undefined
+		fileappend 'inputToWekaFileName$' ?'comma$'
+	else
+		fileappend 'inputToWekaFileName$' 'ppccJitterRap''comma$'
+	endif
 	
 	select Sound 'objectName$'
 	To PointProcess (periodic, peaks)... 75 600 yes yes
 	pppJitterRap = Get jitter (rap)... 0 0 0.0001 0.02 1.3
+	if pppJitterRap = undefined
+		fileappend 'inputToWekaFileName$' ?'comma$'
+	else
+		fileappend 'inputToWekaFileName$' 'pppJitterRap''comma$'
+	endif
 	pppJitterPpq5 = Get jitter (ppq5)... 0 0 0.0001 0.02 1.3
-	fileappend 'inputToWekaFileName$' 'pppJitterRap''comma$''pppJitterPpq5''comma$'
+	if pppJitterPpq5 = undefined
+		fileappend 'inputToWekaFileName$' ?'comma$'
+	else
+		fileappend 'inputToWekaFileName$' 'pppJitterPpq5''comma$'
+	endif
 	
 	select Sound 'objectName$'
 	To Harmonicity (ac)... 0.01 75 0.1 4.5
