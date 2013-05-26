@@ -1,4 +1,4 @@
-package thesis.ceed.recognitionprocess;
+package thesis.ceed.trainingprocess;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

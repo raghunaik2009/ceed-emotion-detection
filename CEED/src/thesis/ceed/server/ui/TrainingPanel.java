@@ -18,10 +18,10 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import thesis.ceed.recognitionprocess.ClassifierSelection;
-import thesis.ceed.recognitionprocess.FeatureExtraction;
-import thesis.ceed.recognitionprocess.FeatureSelection;
 import thesis.ceed.server.Server;
+import thesis.ceed.trainingprocess.ClassifierSelection;
+import thesis.ceed.trainingprocess.FeatureExtraction;
+import thesis.ceed.trainingprocess.FeatureSelection;
 import thesis.ceed.utils.NotifyingThread;
 import thesis.ceed.utils.ThreadCompleteListener;
 import weka.core.Instance;
