@@ -11,8 +11,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 
-import thesis.ceed.recognitionprocess.FeatureExtraction;
 import thesis.ceed.server.ui.ServerWindow;
+import thesis.ceed.trainingprocess.FeatureExtraction;
 import thesis.ceed.utils.Base64;
 import weka.core.Instance;
 import weka.core.Instances;

@@ -8,8 +8,8 @@ import java.io.ObjectInputStream;
 import java.net.ServerSocket;
 import java.util.Date;
 
-import thesis.ceed.recognitionprocess.ClassifierSelection;
 import thesis.ceed.server.ui.ServerWindow;
+import thesis.ceed.trainingprocess.ClassifierSelection;
 import thesis.ceed.utils.NotifyingThread;
 import thesis.ceed.utils.ThreadCompleteListener;
 import weka.classifiers.Classifier;
