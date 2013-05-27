@@ -24,7 +24,7 @@ public class ClassifierSelection {
 		try {
 			Instances trainingData = new Instances(new BufferedReader(new FileReader(selectedAttArffFilePath)));
 			trainingData.setClassIndex(trainingData.numAttributes() - 1);
-			for (int i = 0; i < 63; i++) {
+			for (int i = 0; i < 64; i++) {
 				Classifier cls = CeedClassifier.select(i);
 				Double pctCorrect = CeedClassifier.evaluate(cls, trainingData);
 				if (pctCorrect != null) {

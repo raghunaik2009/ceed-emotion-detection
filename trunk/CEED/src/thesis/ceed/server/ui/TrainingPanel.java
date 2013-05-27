@@ -56,13 +56,13 @@ public class TrainingPanel extends JPanel implements ThreadCompleteListener {
 		lblDbAddr = new JLabel("Database folder path: ");
 		
 		txtDbAddr = new JTextField();
-		txtDbAddr.setText("E:\\E2.Doing\\Samsung\\wav2");
+		//txtDbAddr.setText("E:\\E2.Doing\\BK\\TN\\wavZ");
 		
 		btnOpenDbFolder = new JButton("Open Database");
 		btnOpenDbFolder.setToolTipText("Open database folder containing sounds to train");
 		fcDatabase = new JFileChooser();
-		//fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
-		fcDatabase.setCurrentDirectory(new File("E:\\E2.Doing\\Samsung\\wav2"));
+		fcDatabase.setCurrentDirectory(new File(Server.WORKING_DIR));
+		//fcDatabase.setCurrentDirectory(new File("E:\\E2.Doing\\BK\\TN\\wavZ"));
 		fcDatabase.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 		btnOpenDbFolder.addActionListener(new ActionListener() {
 			@Override
@@ -117,11 +117,11 @@ public class TrainingPanel extends JPanel implements ThreadCompleteListener {
 		lblTestFileAddr = new JLabel("File path: ");
 		
 		txtTestFileAddr = new JTextField();
-		txtTestFileAddr.setText("D:\\CEED\\GER\\Sound\\353904050257969_F.wav");
+		//txtTestFileAddr.setText("D:\\CEED\\GER\\Sound\\353904050257969_F.wav");
 		
 		btnOpenTestFile = new JButton("Open File");
 		fcFile = new JFileChooser();
-		fcFile.setCurrentDirectory(new File("D:\\CEED\\GER\\Sound"));
+		fcFile.setCurrentDirectory(new File(Server.WORKING_DIR));
 		fcFile.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		btnOpenTestFile.addActionListener(new ActionListener() {
 			@Override

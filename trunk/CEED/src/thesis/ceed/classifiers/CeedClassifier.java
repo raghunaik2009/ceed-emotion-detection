@@ -102,7 +102,6 @@ public class CeedClassifier {
 			classifier = new Logistic();
 			break;
 		case 57:
-			//classifier = new CeedMultilayerPerceptron();
 			classifier = new MultilayerPerceptron();
 			break;
 		case 8:
@@ -274,6 +273,9 @@ public class CeedClassifier {
 			break;
 		case 62:
 			classifier = new SimpleCart();
+			break;
+		case 63:
+			classifier = new CeedMultilayerPerceptron();
 			break;
 		
 		default:

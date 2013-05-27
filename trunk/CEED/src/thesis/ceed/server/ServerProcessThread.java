@@ -79,7 +79,7 @@ public class ServerProcessThread extends Thread {
 		String soundData = clientData.substring(dataPos);
 		
 		//Create directory if not existed to each client using IMEI number
-		File newDir = new File("D:\\CEED\\" + lang + "\\Sound\\");
+		File newDir = new File(Server.WORKING_DIR + lang + "\\Sound\\");
 		if(!newDir.exists())
 			newDir.mkdirs();
 		//Save sound file into corresponding client
