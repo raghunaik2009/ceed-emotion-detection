@@ -1,7 +1,7 @@
 package thesis.ceed.server;
 
 public class CommonProcesses {
-	//Frame size
+		//Frame size
 		public static final int FRAMELENGHT = 512;
 		//Frame overlapping size
 		public static final int SHIFTINTERVAL = FRAMELENGHT/2;
@@ -38,7 +38,7 @@ public class CommonProcesses {
 	        return Math.log(value) / Math.log(10);
 	    }
 		
-		//calculate center frequency of a filterbank
+		//calculate center frequency of a filterbank in Hz
 		private double centerFreq(int i){
 	        double mel[] = new double[2];
 	        mel[0] = freqToMel(LOWER_FILTER_FREQ);
@@ -94,7 +94,7 @@ public class CommonProcesses {
 			}
 		}//end of hammingwindow
 		
-		//Step 2: FFT transform and calculate energy in certain frequency in EACH frame
+		//Step 2: FFT transform and calculate energy in certain frequencies in EACH frame
 		public double[] magnitudeSpectrum(double frame[]){
 			double magSpectrum[] = new double[frame.length];
 			
@@ -117,7 +117,6 @@ public class CommonProcesses {
 	        
 	        for (int i = 1; i <= NO_MEL_FILTER; i++){
 	            double fc = centerFreq(i);
-
 	            cbin[i] = (int)Math.round(fc / SAMPLERATE * FFT_SIZE);
 	        }
 	        

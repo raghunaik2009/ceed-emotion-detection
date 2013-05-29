@@ -3,13 +3,13 @@ package thesis.ceed.client;
 import java.io.File;
 import java.io.IOException;
 import java.util.regex.Matcher;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.os.Bundle;
@@ -52,11 +52,14 @@ public class CEEDClient extends Activity {
 	private TextView mTxtViewEmotion;	
 	private Button mBtnSave;
 	private Button mBtnViewHistory;	
+	static String emoResult;
 	static RecordingWav wavRecorder;
 	static TelephonyManager telephony;
 	static MediaPlayer mMediaPlayer;
 	static int currentPos;
 	static Context context;
+	
+	
 	@Override 
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -207,15 +210,16 @@ public class CEEDClient extends Activity {
 			@Override
 			public void onClick(View v) {
 				try {					
-					//ClientNet.send(new File(wavRecorder.getFileNameSaved()));
+					//
 					if(mRdBtnGerman.isChecked() == true){
-						ClientNet.send(new File(Environment.getExternalStorageDirectory() + "//CEED//1367916681975.wav"), "GER");
+						ClientNet.send(new File(wavRecorder.getFileNameSaved()), "GER");
 					}else
-						ClientNet.send(new File(Environment.getExternalStorageDirectory() + "//CEED//1367916681975.wav"), "VIE");					
+						ClientNet.send(new File(wavRecorder.getFileNameSaved()), "VIE");					
 					new Thread() {
 						@Override
 						public void run() {
 							String emotion = ClientNet.receiveResult();
+							emoResult = emotion;
 							if (emotion != null) {
 								final int emotionCode = Integer.parseInt(emotion);
 								runOnUiThread(new Runnable() {						
@@ -235,6 +239,32 @@ public class CEEDClient extends Activity {
 			}
 		});	
 		
+		mBtnSave.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				ClientDbHelper mDataSource = new ClientDbHelper(context);
+				mDataSource.open();
+				String attemptLang = "";
+				if(mRdBtnGerman.isChecked()) attemptLang = "GER";
+				else attemptLang = "VIE";
+				mDataSource.insertValue(wavRecorder.getFileNameSaved(), attemptLang, emoResult);
+				mDataSource.close();
+				Toast.makeText(context, "History saved succesfully", Toast.LENGTH_LONG).show();				
+			}
+		});
+		
+		mBtnViewHistory.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				Intent mIntentToHistory = new Intent (CEEDClient.this,
+		    			CEEDClientHistory.class);
+				startActivityForResult(mIntentToHistory, 101);
+			}
+		});
 	}
 	
 	private void displayResult(int emotionCode) {
@@ -277,7 +307,7 @@ public class CEEDClient extends Activity {
 	protected void onStop() {
 		// TODO Auto-generated method stub
 		mMediaPlayer.release();
-		mMediaPlayer = null;
+		//mMediaPlayer = null;
 		super.onStop();
 	}
 
@@ -324,6 +354,7 @@ public class CEEDClient extends Activity {
 					{						
 						ClientNet.SERVER_IP = mEdtTextServerIP.getText().toString();
 						Toast.makeText(getActivity(), "Server IP Address succesfully updated.", Toast.LENGTH_SHORT).show();
+						ClientNet.connect();
 					}
 					 
 				}
