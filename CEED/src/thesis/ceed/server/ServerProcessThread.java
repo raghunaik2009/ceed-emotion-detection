@@ -12,7 +12,7 @@ import java.io.InputStreamReader;
 import java.net.Socket;
 
 import thesis.ceed.server.ui.ServerWindow;
-import thesis.ceed.trainingprocess.FeatureExtraction;
+import thesis.ceed.trainingprocess.*;
 import thesis.ceed.utils.Base64;
 import weka.core.Instance;
 import weka.core.Instances;

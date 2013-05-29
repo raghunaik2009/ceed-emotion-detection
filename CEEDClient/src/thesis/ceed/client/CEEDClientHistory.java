@@ -3,34 +3,44 @@ package thesis.ceed.client;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.app.ListActivity;
+import android.app.Activity;
+import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.widget.ArrayAdapter;
-public class CEEDClientHistory extends ListActivity {
+import android.widget.ListView;
+public class CEEDClientHistory extends Activity {
 	public ClientDbHelper mDataSource;
-
+	Context mContext;
+	private ListView mListview;
+	SimpleCursorAdapter dataAdapter;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activiry_history);
-		
+		mContext = this;
+		mListview = (ListView) findViewById(R.id.lviewHistory);
 		mDataSource = new ClientDbHelper(this);
-		mDataSource.open();
-		
-		List<ClientAttempt> allAttempt = new ArrayList<ClientAttempt>();
+		mDataSource.open();		
 		Cursor mCursor = mDataSource.getAllValue();
-		mCursor.moveToFirst();
-		while(!mCursor.isAfterLast()){
-			ClientAttempt tempAttempt = new ClientAttempt(mCursor.getString(1), mCursor.getString(2), mCursor.getString(3));
-			allAttempt.add(tempAttempt);
-			mCursor.moveToNext();
-		}
-		mCursor.close();
+		mCursor.moveToFirst();		
+		String[] columns = new String[] {
+				ClientDbHelper.ID,
+			    ClientDbHelper.TIME,
+			    ClientDbHelper.LANG,
+			    ClientDbHelper.EMOTION
+			  };
+			  int[] idList = new int[] { 
+				R.id.txtviewid,
+			    R.id.txtviewtime,
+			    R.id.txtviewlang,
+			    R.id.txtviewemotion
+			  };
+		dataAdapter = new SimpleCursorAdapter(mContext, R.layout.history_item, mCursor, columns, idList, 0);
+		mListview.setAdapter(dataAdapter);
 		
-		ArrayAdapter<ClientAttempt> adapter = new ArrayAdapter<ClientAttempt>(this, R.layout.history_item, allAttempt);
-		setListAdapter(adapter);		
 	}
 
 	@Override

@@ -8,10 +8,10 @@ import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
 
 public class ClientDbHelper {	
-	private static final String ID = "id";
-	private static final String EMOTION = "emotion";
-	private static final String LANG = "lang";
-	private static final String TIME = "time";	
+	public static final String ID = "_id";
+	public static final String EMOTION = "emotion";
+	public static final String LANG = "lang";
+	public static final String TIME = "time";	
 	private static String TABLE_NAME = "tbl_history";
 	
 	private static String DATABASE_NAME = "history.db";
@@ -55,6 +55,7 @@ public class ClientDbHelper {
 	
 	public ClientDbHelper open(){
 		db = dbHelper.getWritableDatabase();
+		
 		return this;
 	}
 	
@@ -75,7 +76,7 @@ public class ClientDbHelper {
 	}
 	
 	public Cursor getAllValue(){
-		return db.query(TABLE_NAME, new String[]{ID, TIME, EMOTION, EMOTION}, null,null,null,null,null);
+		return db.query(TABLE_NAME, new String[]{ID, TIME, LANG, EMOTION}, null,null,null,null,null);
 	}
 	
 	public Cursor getSingleValue(long id){

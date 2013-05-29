@@ -2,7 +2,10 @@ package thesis.ceed.client;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.regex.Matcher;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -13,12 +16,8 @@ import android.content.Intent;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.os.Bundle;
-import android.os.Environment;
 import android.telephony.TelephonyManager;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Patterns;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -244,13 +243,24 @@ public class CEEDClient extends Activity {
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
+				File tempFile = new File(wavRecorder.getFileNameSaved());
+				String fileName = tempFile.getName();
+				String time = fileName.substring(0, fileName.lastIndexOf(".wav"));
+				
+				Calendar cal = Calendar.getInstance();
+				cal.setTimeInMillis(Long.parseLong(time));
+				Date tempDate = cal.getTime();
+				String tempTimeFormatted = tempDate.toLocaleString();
+				
 				ClientDbHelper mDataSource = new ClientDbHelper(context);
 				mDataSource.open();
 				String attemptLang = "";
 				if(mRdBtnGerman.isChecked()) attemptLang = "GER";
 				else attemptLang = "VIE";
-				mDataSource.insertValue(wavRecorder.getFileNameSaved(), attemptLang, emoResult);
+				mDataSource.insertValue(tempTimeFormatted, attemptLang, emoResult);
+				
 				mDataSource.close();
+				
 				Toast.makeText(context, "History saved succesfully", Toast.LENGTH_LONG).show();				
 			}
 		});
@@ -262,7 +272,7 @@ public class CEEDClient extends Activity {
 				// TODO Auto-generated method stub
 				Intent mIntentToHistory = new Intent (CEEDClient.this,
 		    			CEEDClientHistory.class);
-				startActivityForResult(mIntentToHistory, 101);
+				startActivity(mIntentToHistory);
 			}
 		});
 	}
@@ -270,30 +280,37 @@ public class CEEDClient extends Activity {
 	private void displayResult(int emotionCode) {
 		switch (emotionCode) {
 		case 0:
+			emoResult = "Anger";
 			mImgViewEmotion.setImageResource(R.drawable.angry);
 			mTxtViewEmotion.setText("Anger");
 			break;
 		case 1:
+			emoResult = "Boredom";
 			mImgViewEmotion.setImageResource(R.drawable.boredom);
 			mTxtViewEmotion.setText("Boredom");
 			break;
 		case 2:
+			emoResult = "Disgust";
 			mImgViewEmotion.setImageResource(R.drawable.disgust);
 			mTxtViewEmotion.setText("Disgust");
 			break;
 		case 3:
+			emoResult = "Fear";
 			mImgViewEmotion.setImageResource(R.drawable.fear);
 			mTxtViewEmotion.setText("Fear");
 			break;
 		case 4:
+			emoResult = "Happy";
 			mImgViewEmotion.setImageResource(R.drawable.happy);
 			mTxtViewEmotion.setText("Happy");
 			break;
 		case 5:
+			emoResult = "Sad";
 			mImgViewEmotion.setImageResource(R.drawable.sad);
 			mTxtViewEmotion.setText("Sad");
 			break;
 		case 6:
+			emoResult = "Neutral";
 			mImgViewEmotion.setImageResource(R.drawable.neutral);
 			mTxtViewEmotion.setText("Neutral");
 			break;
