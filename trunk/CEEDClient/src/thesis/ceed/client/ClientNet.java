@@ -14,7 +14,7 @@ import java.net.UnknownHostException;
 import thesis.ceed.utils.Base64;
 
 public class ClientNet {
-	public static String SERVER_IP = "192.168.5.102";
+	public static String SERVER_IP = "192.168.173.1";
 	public static final int SERVER_PORT = 7010;
 	
 	public static Socket clientSocket;

@@ -22,4 +22,8 @@
 	<string name="default_serverip">192.168.1.1</string>
 	<string name="ok">OK</string>
 	<string name="cancel">Cancel</string>
+	<string name="txtviewHistoryLabel">EMOTION DETECTION HISTORY</string>
+	<string name="defaulttime">1120012210</string>
+	<string name="defaultlang">GER</string>
+	<string name="defaultemo">Neutral</string>
 </resources>
