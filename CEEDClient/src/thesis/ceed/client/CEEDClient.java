@@ -15,6 +15,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
 import android.util.Patterns;
@@ -37,6 +38,8 @@ public class CEEDClient extends Activity {
 	private static final String PLAYING_STATUS = "Playing Recorded Sound";
 	private static final String PAUSE_STATUS = "Paused Playing Recored Sound";
 	private static final String STOPPED_STATUS = "Stopped Playing Recorded Sound";
+	private static final String PROCESSING_STATUS = "Server's processing recorded sound";
+	private static final String RECEIVED_STATUS = "Emotion received from server";
 	private ImageButton mImgBtnRecord;
 	private ImageButton mImgBtnStop;
 	private ImageButton mImgBtnPlay;
@@ -44,7 +47,7 @@ public class CEEDClient extends Activity {
 	private ImageButton mImgBtnSDcard;
 	private TextView mTxtViewStatus;
 	private TextView mTxtViewFileName;
-	private Button mBtnSend;
+	private static Button mBtnSend;
 	private RadioButton mRdBtnGerman;
 	private RadioButton mRdBtnVietnamese;
 	private ImageView mImgViewEmotion;
@@ -54,18 +57,17 @@ public class CEEDClient extends Activity {
 	static String emoResult;
 	static RecordingWav wavRecorder;
 	static TelephonyManager telephony;
-	static MediaPlayer mMediaPlayer;
+	static MediaPlayer mMediaPlayer = new MediaPlayer();
 	static int currentPos;
 	static Context context;
-	
+	private SendToServerAsync mSendToServerAsync;
 	
 	@Override 
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		context = this;
 		setContentView(R.layout.activity_ceedclient);
-		telephony = (TelephonyManager)getSystemService(TELEPHONY_SERVICE);
-		ClientNet.connect();
+		telephony = (TelephonyManager)getSystemService(TELEPHONY_SERVICE);		
 		mImgBtnRecord = (ImageButton)findViewById(R.id.imgbtnRecord);
 		mImgBtnStop = (ImageButton)findViewById(R.id.imgbtnStop);
 		mImgBtnPlay = (ImageButton)findViewById(R.id.imgbtnPlay);
@@ -84,7 +86,8 @@ public class CEEDClient extends Activity {
 		mImgBtnStop.setEnabled(false);
 		mImgBtnPlay.setEnabled(false);
 		mImgBtnPause.setEnabled(false);
-		mRdBtnGerman.setChecked(true);
+		mRdBtnGerman.setChecked(true);		
+		//mBtnSend.setEnabled(false);
 		
 		mRdBtnGerman.setOnClickListener(new OnClickListener() {
 			
@@ -110,6 +113,7 @@ public class CEEDClient extends Activity {
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
+				mImgViewEmotion.setImageResource(R.drawable.question);
 				wavRecorder = new RecordingWav();
 				wavRecorder.isRecording = true;
 				mImgBtnStop.setEnabled(true);
@@ -124,7 +128,7 @@ public class CEEDClient extends Activity {
 		mImgBtnStop.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				// TODO Auto-generated method stub
+				// TODO Auto-generated method stub				
 				wavRecorder.isRecording = false;				
 				mImgBtnStop.setEnabled(false);
 				mImgBtnRecord.setEnabled(true);
@@ -205,37 +209,18 @@ public class CEEDClient extends Activity {
 				mImgBtnPause.setEnabled(false);
 			}
 		});
+		
 		mBtnSend.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				try {					
-					//
-					if(mRdBtnGerman.isChecked() == true){
-						ClientNet.send(new File(wavRecorder.getFileNameSaved()), "GER");
-					}else
-						ClientNet.send(new File(wavRecorder.getFileNameSaved()), "VIE");					
-					new Thread() {
-						@Override
-						public void run() {
-							String emotion = ClientNet.receiveResult();
-							emoResult = emotion;
-							if (emotion != null) {
-								final int emotionCode = Integer.parseInt(emotion);
-								runOnUiThread(new Runnable() {						
-									@Override
-									public void run() {
-										displayResult(emotionCode);
-									}
-								});					
-								super.run();
-							}
-						}
-					}.start();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+			mTxtViewStatus.setText(PROCESSING_STATUS);
+			mSendToServerAsync = new SendToServerAsync();
+			if(mRdBtnGerman.isChecked() == true){
+				mSendToServerAsync.execute(wavRecorder.getFileNameSaved(), "GER");
 			}
+			else
+			mSendToServerAsync.execute(wavRecorder.getFileNameSaved(), "VIE");	
+			}				
 		});	
 		
 		mBtnSave.setOnClickListener(new OnClickListener() {
@@ -243,28 +228,31 @@ public class CEEDClient extends Activity {
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
-				File tempFile = new File(wavRecorder.getFileNameSaved());
-				String fileName = tempFile.getName();
-				String time = fileName.substring(0, fileName.lastIndexOf(".wav"));
-				
-				Calendar cal = Calendar.getInstance();
-				cal.setTimeInMillis(Long.parseLong(time));
-				Date tempDate = cal.getTime();
-				String tempTimeFormatted = tempDate.toLocaleString();
-				
-				ClientDbHelper mDataSource = new ClientDbHelper(context);
-				mDataSource.open();
-				String attemptLang = "";
-				if(mRdBtnGerman.isChecked()) attemptLang = "GER";
-				else attemptLang = "VIE";
-				mDataSource.insertValue(tempTimeFormatted, attemptLang, emoResult);
-				
-				mDataSource.close();
-				
-				Toast.makeText(context, "History saved succesfully", Toast.LENGTH_LONG).show();				
+				if(wavRecorder != null && emoResult != null){
+					File tempFile = new File(wavRecorder.getFileNameSaved());
+					String fileName = tempFile.getName();
+					String time = fileName.substring(0, fileName.lastIndexOf(".wav"));
+					
+					Calendar cal = Calendar.getInstance();
+					cal.setTimeInMillis(Long.parseLong(time));
+					Date tempDate = cal.getTime();
+					String tempTimeFormatted = tempDate.toLocaleString();
+					
+					ClientDbHelper mDataSource = new ClientDbHelper(context);
+					mDataSource.open();
+					String attemptLang = "";
+					if(mRdBtnGerman.isChecked()) attemptLang = "GER";
+					else attemptLang = "VIE";
+					mDataSource.insertValue(tempTimeFormatted, attemptLang, emoResult);				
+					mDataSource.close();				
+					Toast.makeText(context, "History saved succesfully", Toast.LENGTH_LONG).show();
+					emoResult = null;
+				}
+				else
+					Toast.makeText(context, "Please use the program first", Toast.LENGTH_SHORT).show();						
 			}
 		});
-		
+				
 		mBtnViewHistory.setOnClickListener(new OnClickListener() {
 			
 			@Override
@@ -275,7 +263,36 @@ public class CEEDClient extends Activity {
 				startActivity(mIntentToHistory);
 			}
 		});
-	}
+	}//end of onCreate
+	
+	
+	public class SendToServerAsync extends AsyncTask<String, Void, String>{
+
+		@Override
+		protected String doInBackground(String... params) {
+			// TODO Auto-generated method stub
+			try {
+				ClientNet.send(new File(params[0]), params[1]);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				Toast.makeText(getApplication(), "Error sending recorded file, please try again", Toast.LENGTH_SHORT).show();
+			}
+			return ClientNet.receiveResult();
+		}
+
+		@Override
+		protected void onPostExecute(String result) {
+			// TODO Auto-generated method stub
+			super.onPostExecute(result);
+			mTxtViewStatus.setText(RECEIVED_STATUS);
+			emoResult = result;
+			if (result != null) {
+				final int emotionCode = Integer.parseInt(result);
+				displayResult(emotionCode);
+			}
+		}				
+	}//end SendToServerAsync
 	
 	private void displayResult(int emotionCode) {
 		switch (emotionCode) {
@@ -311,20 +328,42 @@ public class CEEDClient extends Activity {
 			break;
 		case 6:
 			emoResult = "Neutral";
-			mImgViewEmotion.setImageResource(R.drawable.neutral);
+			mImgViewEmotion.setImageResource(R.drawable.neutral);   
 			mTxtViewEmotion.setText("Neutral");
 			break;
 		default:
 			break;
 		}
 	}
-
+	
 	
 	@Override
-	protected void onStop() {
+	protected void onDestroy() {
 		// TODO Auto-generated method stub
-		mMediaPlayer.release();
-		//mMediaPlayer = null;
+		super.onDestroy();
+		try {
+			mMediaPlayer.release();
+			ClientNet.disconnect();
+			Toast.makeText(context, "CEEDClient disconnected from server", Toast.LENGTH_SHORT).show();
+		} catch (IOException e) {
+		// TODO Auto-generated catch block
+			e.printStackTrace();
+			Toast.makeText(context, "CEEDClient disconnected from server", Toast.LENGTH_SHORT).show();			
+		}
+	}
+
+	@Override
+	protected void onStop() {
+		// TODO Auto-generated method stub		
+		/*try {
+			mMediaPlayer.release();
+			ClientNet.disconnect();
+			Toast.makeText(context, "CEEDClient disconnected from server", Toast.LENGTH_SHORT).show();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			Toast.makeText(context, "CEEDClient disconnected from server", Toast.LENGTH_SHORT).show();			
+		}*/
 		super.onStop();
 	}
 
@@ -370,8 +409,14 @@ public class CEEDClient extends Activity {
 					}else
 					{						
 						ClientNet.SERVER_IP = mEdtTextServerIP.getText().toString();
-						Toast.makeText(getActivity(), "Server IP Address succesfully updated.", Toast.LENGTH_SHORT).show();
+						Toast.makeText(getActivity(), "Server IP Address succesfully updated.", Toast.LENGTH_SHORT).show();						
 						ClientNet.connect();
+						/*if(ClientNet.connect())
+							mBtnSend.setEnabled(true);
+						else{
+							Toast.makeText(getActivity(), "Please reconfigure server IP address", Toast.LENGTH_SHORT).show();
+							mBtnSend.setEnabled(false);
+						}*/						
 					}
 					 
 				}

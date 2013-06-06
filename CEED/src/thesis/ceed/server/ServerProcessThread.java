@@ -40,9 +40,9 @@ public class ServerProcessThread extends Thread {
 	
 	@Override
 	public void run() {
-		super.run();
-		getIOStreams();
-		processIOStreams();
+		super.run();		
+			getIOStreams();
+			processIOStreams();
 	}
 	
 	public void getIOStreams(){
@@ -57,9 +57,12 @@ public class ServerProcessThread extends Thread {
 	
 	public void processIOStreams(){
 		try {
-			String dataFromClient = inStream.readLine();
-			currentSoundPathOnServer = receiveSound(dataFromClient);
-			processSound(currentSoundPathOnServer);
+			while(true){
+				String dataFromClient = inStream.readLine();
+				currentSoundPathOnServer = receiveSound(dataFromClient);
+				processSound(currentSoundPathOnServer);
+			}
+			
 		} catch (IOException e) {	
 			e.printStackTrace();
 		}

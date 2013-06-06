@@ -20,6 +20,7 @@
         android:theme="@style/AppTheme" >
         <activity
             android:name="thesis.ceed.client.CEEDClient"
+            android:screenOrientation="portrait"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -28,7 +29,8 @@
             </intent-filter>
         </activity>
         <activity 
-		android:name="thesis.ceed.client.CEEDClientHistory">
+		android:name="thesis.ceed.client.CEEDClientHistory"
+		android:screenOrientation="portrait">
 		</activity>
     </application>
 
