@@ -41,7 +41,8 @@ public final class R {
         public static final int ic_stop=0x7f020011;
         public static final int ic_stop2=0x7f020012;
         public static final int neutral=0x7f020013;
-        public static final int sad=0x7f020014;
+        public static final int question=0x7f020014;
+        public static final int sad=0x7f020015;
     }
     public static final class id {
         public static final int action_settings=0x7f08001c;

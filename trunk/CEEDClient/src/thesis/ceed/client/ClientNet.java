@@ -11,17 +11,18 @@ import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
+import android.widget.Toast;
+
 import thesis.ceed.utils.Base64;
 
 public class ClientNet {
-	public static String SERVER_IP = "192.168.5.100";
-	public static final int SERVER_PORT = 7010;
-	
-	public static Socket clientSocket;
-	public static BufferedReader fromServer;
+	public static String SERVER_IP = "192.168.5.102";
+	public static final int SERVER_PORT = 7010;	
+	public static Socket clientSocket = new Socket();
+	public static BufferedReader fromServer = null;
 	//static DataOutputStream outToServer;
 	//public static OutputStreamWriter outToServer;
-	static DataOutputStream outToServer;
+	static DataOutputStream outToServer = null;
 	//static OutputStreamWriter outToServer;
 	public static void connect() {
 		new Thread() {
@@ -31,20 +32,18 @@ public class ClientNet {
 					outToServer = new DataOutputStream(clientSocket.getOutputStream());
 					fromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 				} catch (UnknownHostException e) {
-					e.printStackTrace();
+					e.printStackTrace();					
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
 			}
-		}.start();
+		}.start();		
 	}
 	
-	public static void send(File file, String lang) throws IOException {
-		int fileSize = (int)file.length();
-		
+	public static void send(File file, String lang) throws IOException {		
+		int fileSize = (int)file.length();		
 		FileInputStream fis = new FileInputStream(file);
-		BufferedInputStream bufferFileInputStream = new BufferedInputStream(fis);
-		
+		BufferedInputStream bufferFileInputStream = new BufferedInputStream(fis);		
 		byte[] data = new byte[fileSize];
 		bufferFileInputStream.read(data, 0, fileSize);
 		fis.close();
