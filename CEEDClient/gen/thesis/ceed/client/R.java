@@ -45,35 +45,34 @@ public final class R {
         public static final int sad=0x7f020015;
     }
     public static final class id {
-        public static final int action_settings=0x7f08001c;
-        public static final int btnSave=0x7f080014;
-        public static final int btnSend=0x7f080010;
-        public static final int btnViewHistory=0x7f080015;
-        public static final int edttextServerIP=0x7f08001b;
+        public static final int action_settings=0x7f08001b;
+        public static final int btnSave=0x7f080013;
+        public static final int btnSend=0x7f08000f;
+        public static final int btnViewHistory=0x7f080014;
+        public static final int edttextServerIP=0x7f08001a;
         public static final int imgbtnPause=0x7f08000b;
         public static final int imgbtnPlay=0x7f08000a;
         public static final int imgbtnRecord=0x7f080008;
-        public static final int imgbtnSDcard=0x7f08000c;
         public static final int imgbtnStop=0x7f080009;
-        public static final int imgviewEmotion=0x7f080012;
+        public static final int imgviewEmotion=0x7f080011;
         public static final int llayout11=0x7f080007;
-        public static final int llayout12=0x7f08000d;
+        public static final int llayout12=0x7f08000c;
         public static final int lviewHistory=0x7f080001;
         public static final int rdbtnGerman=0x7f080004;
         public static final int rdbtnVietnamese=0x7f080005;
         public static final int rlayout1=0x7f080006;
-        public static final int rlayout2=0x7f080011;
+        public static final int rlayout2=0x7f080010;
         public static final int rlayout3=0x7f080002;
-        public static final int txtviewEmotion=0x7f080013;
-        public static final int txtviewFileName=0x7f08000f;
+        public static final int txtviewEmotion=0x7f080012;
+        public static final int txtviewFileName=0x7f08000e;
         public static final int txtviewHistoryLabel=0x7f080000;
         public static final int txtviewLanguage=0x7f080003;
-        public static final int txtviewServerIP=0x7f08001a;
-        public static final int txtviewStatus=0x7f08000e;
-        public static final int txtviewemotion=0x7f080019;
-        public static final int txtviewid=0x7f080016;
-        public static final int txtviewlang=0x7f080018;
-        public static final int txtviewtime=0x7f080017;
+        public static final int txtviewServerIP=0x7f080019;
+        public static final int txtviewStatus=0x7f08000d;
+        public static final int txtviewemotion=0x7f080018;
+        public static final int txtviewid=0x7f080015;
+        public static final int txtviewlang=0x7f080017;
+        public static final int txtviewtime=0x7f080016;
     }
     public static final class layout {
         public static final int activiry_history=0x7f030000;

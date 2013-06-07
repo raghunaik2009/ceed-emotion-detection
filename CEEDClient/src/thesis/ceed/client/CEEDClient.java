@@ -72,7 +72,7 @@ public class CEEDClient extends Activity {
 		mImgBtnStop = (ImageButton)findViewById(R.id.imgbtnStop);
 		mImgBtnPlay = (ImageButton)findViewById(R.id.imgbtnPlay);
 		mImgBtnPause = (ImageButton)findViewById(R.id.imgbtnPause);
-		mImgBtnSDcard = (ImageButton)findViewById(R.id.imgbtnSDcard);	
+		//mImgBtnSDcard = (ImageButton)findViewById(R.id.imgbtnSDcard);	
 		mTxtViewStatus = (TextView)findViewById(R.id.txtviewStatus);
 		mTxtViewFileName = (TextView)findViewById(R.id.txtviewFileName);
 		mBtnSend = (Button)findViewById(R.id.btnSend);
@@ -213,13 +213,17 @@ public class CEEDClient extends Activity {
 		mBtnSend.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-			mTxtViewStatus.setText(PROCESSING_STATUS);
-			mSendToServerAsync = new SendToServerAsync();
-			if(mRdBtnGerman.isChecked() == true){
-				mSendToServerAsync.execute(wavRecorder.getFileNameSaved(), "GER");
+			if(wavRecorder != null){
+				mTxtViewStatus.setText(PROCESSING_STATUS);
+				mSendToServerAsync = new SendToServerAsync();
+				if(mRdBtnGerman.isChecked() == true){
+					mSendToServerAsync.execute(wavRecorder.getFileNameSaved(), "GER");
+				}
+				else
+				mSendToServerAsync.execute(wavRecorder.getFileNameSaved(), "VIE");	
 			}
 			else
-			mSendToServerAsync.execute(wavRecorder.getFileNameSaved(), "VIE");	
+				Toast.makeText(context, "Please record sound first", Toast.LENGTH_SHORT).show();
 			}				
 		});	
 		
