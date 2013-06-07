@@ -26,7 +26,7 @@ public class MEDC {
 		return resultSecondDif;
 	}
 	
-	public double[] combineDiffs(double[] firstDif, double[] secondDif){
+	/*public double[] combineDiffs(double[] firstDif, double[] secondDif){
 		double combinedDif [] = new double[firstDif.length];
 		
 		combinedDif[0] = (firstDif[0]*firstDif[0])+(secondDif[0]*secondDif[0]);
@@ -34,7 +34,7 @@ public class MEDC {
 			combinedDif[i] = (firstDif[i] * firstDif[i]) + (secondDif[i]*secondDif[i]);
 		
 		return combinedDif;
-	}
+	}*/
 	public double[][] processMEDC(short[] inputSignal){
 		
 		//PreEmphasis
@@ -61,9 +61,12 @@ public class MEDC {
 			//calculate Second Dif
 			double secondDif[] = calculateSecondDifference(firstDif);
 			//MEDC of a frame
-			double combinedDiffs [] = combineDiffs(firstDif, secondDif);
-			for(int j = 0; j < CommonProcesses.NO_MEL_FILTER - 2; j++){
-				MEDC[i][j] = combinedDiffs[j];
+			//double combinedDiffs [] = combineDiffs(firstDif, secondDif);
+			for(int j = 0; j < CommonProcesses.NO_MEL_FILTER - 1; j++){
+				MEDC[i][j] = firstDif[j];				
+			}
+			for(int j = CommonProcesses.NO_MEL_FILTER -1; j < 2*CommonProcesses.NO_MEL_FILTER - 3; j++){
+				MEDC[i][j] = secondDif[j];
 			}
 		}
 		return MEDC;

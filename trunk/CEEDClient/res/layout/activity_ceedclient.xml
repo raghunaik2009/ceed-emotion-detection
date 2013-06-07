@@ -45,7 +45,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
-            android:layout_weight="5"
+            android:layout_weight="4"
             android:orientation="horizontal" >
 
             <ImageButton
@@ -81,13 +81,13 @@
 			    android:contentDescription="@string/imgbtnPauseCD"
 			    android:src="@drawable/ic_pause" />
 
-	        <ImageButton
+	        <!-- <ImageButton
 	            android:id="@+id/imgbtnSDcard"
 	            android:layout_width="wrap_content"
 	            android:layout_height="wrap_content"
 	            android:layout_weight="1"
 	            android:contentDescription="@string/imgbtnSDcardCD"
-	            android:src="@drawable/ic_sdcard2" />
+	            android:src="@drawable/ic_sdcard2" />  -->
 
         </LinearLayout>
         	
@@ -118,7 +118,8 @@
 			    android:layout_width="wrap_content"
 			    android:layout_height="wrap_content"
 			    android:layout_gravity="center_horizontal"
-			    android:text="@string/btnSend"/>
+			    android:text="@string/btnSend"
+			    android:textSize="25sp"/>
         </LinearLayout>
 	
 	</RelativeLayout>
