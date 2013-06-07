@@ -32,7 +32,7 @@ public class ServerWindow extends JFrame {
 		tabPane.addTab("X", null, xPanel, "X Panel");
 		tabPane.addTab("Training", null, trnPanel, "Training Panel");
 		tabPane.addTab("Statistics", null, statPanel, "Statistics Panel");
-		tabPane.setSelectedIndex(1);
+		tabPane.setSelectedIndex(0);
 		
 		taResult = new JTextArea();
 		spResult = new JScrollPane(taResult);

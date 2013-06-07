@@ -213,7 +213,7 @@ public class CEEDClient extends Activity {
 		mBtnSend.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-			if(wavRecorder != null){
+			if(wavRecorder != null && ClientNet.clientSocket.isConnected() == true){
 				mTxtViewStatus.setText(PROCESSING_STATUS);
 				mSendToServerAsync = new SendToServerAsync();
 				if(mRdBtnGerman.isChecked() == true){
